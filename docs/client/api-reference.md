@@ -86,9 +86,30 @@ Starts the OTel span. Registers the entity in the in-process TraceStore so child
 
 Ends the span in success state. `metadata` is a `dict` of JSON-serialisable values stored in TimescaleDB.
 
-### `token.error(message)`
+### `token.error(metadata=None)`
 
-Records a `helix.error` span event and ends the span in error state. Triggers configured notifications (Slack, GitHub Issues).
+Records a `helix.error` span event, marks the span as failed, and **ends the span**. Use for hard failures — the operation cannot continue.
+
+```python
+token.error({"reason": "NFS timeout", "path": "/data/output.h5"})
+```
+
+Triggers configured notifications (Slack, GitHub Issues).
+
+### `token.add_error(metadata=None)`
+
+Records a `helix.error` span event and marks the span as failed, but **leaves the span open**. Use for soft/recoverable failures where the operation continues and you will call `complete()` or `error()` later.
+
+```python
+with tel.operate("write-header", entity_id=event_id) as token:
+    try:
+        write_header()
+    except Exception as e:
+        token.add_error({"stage": "write-header", "message": str(e)})
+    # span is still open — complete() is called by the context manager on exit
+```
+
+Both methods emit a `helix.error` event that the gateway stores in `entity_events` and uses to trigger notifications.
 
 ### `token.add_event(name, metadata=None)`
 

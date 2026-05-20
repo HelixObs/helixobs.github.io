@@ -72,11 +72,27 @@ Any event whose name starts with `helix.event.` is extracted by the gateway and 
 
 ## Errors
 
+There are two error methods depending on whether the failure is terminal:
+
+**Hard error** — `token.error(metadata)` — records `helix.error` and **ends the span**. Use when the operation cannot continue.
+
 ```python
-token.error("NFS timeout writing science file")
+token.error({"reason": "NFS timeout", "path": "/data/output.h5"})
 ```
 
-`token.error()` records a `helix.error` span event and ends the span in an error state. The gateway extracts the error event, stores it in `entity_events`, and triggers any configured notifications (Slack, GitHub Issues).
+**Soft error** — `token.add_error(metadata)` — records `helix.error` but **leaves the span open**. Use when a sub-step fails but the operation continues. Call `complete()` or `error()` when done.
+
+```python
+with tel.operate("post-process", entity_id=product_id) as token:
+    for step in steps:
+        try:
+            step.run()
+        except Exception as e:
+            token.add_error({"step": step.name, "message": str(e)})
+    # context manager calls complete() on clean exit
+```
+
+Both methods emit a `helix.error` event that the gateway stores in `entity_events` and uses to trigger notifications (Slack, GitHub Issues).
 
 ## The instrument ID
 
