@@ -30,7 +30,7 @@ Configures logging and returns a ready-to-use `Instrument` stamped with the same
 | `insecure` | `bool` | `True` | Disable TLS (set `False` in production with TLS) |
 | `otlp` | `bool` | `False` | Ship logs via OTLP instead of stdout JSON |
 | `log_endpoint` | `str\|None` | `None` | OTel Collector address for logs. Falls back to `OTEL_EXPORTER_OTLP_ENDPOINT`, then `http://localhost:4317` |
-| `process_name` | `str\|None` | `None` | Pipeline process name for the Pipeline Logs dashboard. Use `INST/pipeline/stage` convention |
+| `process_name` | `str\|None` | `None` | Pipeline process name for the Pipeline Logs dashboard. Use `INST_ID/pipeline/stage` convention |
 | `credential` | `str\|Callable\|None` | `None` | Registration secret or callable returning one. Required when gateway auth is enabled |
 | `auth_endpoint` | `str\|None` | `None` | Gateway auth token endpoint. Required when `credential` is set |
 | `instrument_class` | `type` | `Instrument` | Subclass to instantiate instead of base `Instrument` |
@@ -39,48 +39,58 @@ Configures logging and returns a ready-to-use `Instrument` stamped with the same
 
 ## `Instrument`
 
-### `Instrument.create(stage, *, id, parents=None)`
+### `Instrument.create(stage, *, id, parents=None) → Token`
 
-Returns a `Token` for a new entity. The entity comes into existence when the token's span is started.
-
-```python
-token = tel.create("ingest", id="block-001", parents=["upstream-block"])
-```
-
-### `Instrument.operate(stage, *, entity_id)`
-
-Returns a `Token` for work on an existing entity. Writes to `entity_operations`, not `entities`.
+Returns a `Token` for a new entity. Works as a plain object (Layer 0), context manager (Layer 1), or decorator (Layer 2).
 
 ```python
-token = tel.operate("archive", entity_id="event-7")
+# Layer 0
+token = tel.create("ingest", id="block-001", parents=["upstream"])
+token.start()
+token.complete()
+
+# Layer 1 — context manager
+with tel.create("ingest", id="block-001", parents=["upstream"]) as token:
+    token.complete(metadata={"size_mb": 42})
+
+# Layer 2 — decorator (id can be a callable receiving the function args)
+@tel.create("ingest", id=lambda block_id, **_: block_id)
+def ingest(block_id):
+    ...
 ```
 
-### `Instrument.track(stage, *, id, parents=None)`
+### `Instrument.operate(operation, *, entity_id) → Token`
 
-Context manager. Calls `.start()` on entry, `.complete()` on clean exit, `.error(str(exc))` on exception.
+Returns a `Token` for work on an existing entity. Writes to `entity_operations`, not `entities`. Same three usage patterns as `create()`.
 
 ```python
-with tel.track("search", id="candidate-42", parents=["block-001"]) as token:
-    token.complete(metadata={"score": 12.4})
+with tel.operate("archive", entity_id="event-7") as token:
+    write_archive()
+    token.complete(metadata={"path": "/data/event-7.h5"})
 ```
 
-### `Instrument.stage(stage_name)`
+### `Instrument.child_span(name, *, parent_id=None, attributes=None)`
 
-Decorator. The decorated function receives a `token` keyword argument. The first positional argument is used as the entity ID.
+Context manager for a child span that appears in the Tempo trace waterfall but does not create an entity row. Use for internal sub-steps within an entity's processing.
 
 ```python
-@tel.stage("search")
-def search(block_id, *, token):
-    token.complete(metadata={"score": compute_score()})
+with tel.create("process", id="block-001") as token:
+    with tel.child_span("filter", attributes={"filter.type": "bandpass"}):
+        apply_filter()
+    token.complete()
 ```
+
+### `Instrument.shutdown()`
+
+Flushes pending spans and shuts down the exporter. Call at application exit if you need a clean flush — not required if the process exits normally.
 
 ---
 
 ## `Token`
 
-### `token.start()`
+### `token.start() → Token`
 
-Starts the OTel span. Registers the entity in the in-process TraceStore so children can resolve provenance links.
+Starts the OTel span. Returns `self` for chaining. Called automatically when entering a `with` block.
 
 ### `token.complete(metadata=None)`
 
@@ -91,7 +101,7 @@ Ends the span in success state. `metadata` is a `dict` of JSON-serialisable valu
 Records a `helix.error` span event, marks the span as failed, and **ends the span**. Use for hard failures — the operation cannot continue.
 
 ```python
-token.error({"reason": "NFS timeout", "path": "/data/output.h5"})
+token.error({"reason": "timeout", "stage": "archive"})
 ```
 
 Triggers configured notifications (Slack, GitHub Issues).
@@ -101,22 +111,28 @@ Triggers configured notifications (Slack, GitHub Issues).
 Records a `helix.error` span event and marks the span as failed, but **leaves the span open**. Use for soft/recoverable failures where the operation continues and you will call `complete()` or `error()` later.
 
 ```python
-with tel.operate("write-header", entity_id=event_id) as token:
+with tel.operate("post-process", entity_id=product_id) as token:
     try:
         write_header()
     except Exception as e:
         token.add_error({"stage": "write-header", "message": str(e)})
-    # span is still open — complete() is called by the context manager on exit
+    # context manager calls complete() on clean exit
 ```
 
-Both methods emit a `helix.error` event that the gateway stores in `entity_events` and uses to trigger notifications.
+### `token.add_event(name, attributes=None)`
 
-### `token.add_event(name, metadata=None)`
-
-Records a named `helix.event.<name>` span event. Stored in `entity_events` and surfaced in the Entity Inspector timeline.
+Records a named span event. Events named `helix.event.*` are stored in `entity_events` and appear in the Entity Inspector timeline.
 
 ```python
-token.add_event("classified", metadata={"label": "candidate", "confidence": 0.97})
+token.add_event("helix.event.classified", attributes={"label": "candidate", "confidence": "0.97"})
+```
+
+### `token.set_attribute(key, value)`
+
+Sets a span attribute. Values are coerced to strings.
+
+```python
+token.set_attribute("output.path", "/data/result.h5")
 ```
 
 ---
@@ -147,4 +163,4 @@ from helixobs.logging import install_context_fields
 install_context_fields()
 ```
 
-Injects helix context fields into log records without adding or modifying any handlers. Use this when your pipeline already has its own logging setup (rotating file handlers, `dictConfig`, etc.) and you only want the `helix_entity_id`, `otel_trace_id`, etc. fields available in your existing format string.
+Injects helix context fields into log records without adding or modifying any handlers. Use this when your pipeline already has its own logging setup and you only want `helix_entity_id`, `otel_trace_id`, etc. available in your existing format string.
