@@ -1,0 +1,67 @@
+site_name: HelixObs
+site_description: Entity-centric observability for scientific instrument pipelines
+site_url: https://helixobs.github.io
+repo_url: https://github.com/HelixObs
+repo_name: HelixObs
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - tables
+  - attr_list
+
+plugins:
+  - search
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - For Scientists & Developers:
+    - Overview: client/index.md
+    - Core Concepts: client/concepts.md
+    - Installation: client/installation.md
+    - Tracking Entities: client/tracking.md
+    - Structured Logging: client/logging.md
+    - Authentication: client/auth.md
+    - API Reference: client/api-reference.md
+  - For Operators:
+    - Overview: operator/index.md
+    - Stack Architecture: operator/architecture.md
+    - Deployment: operator/deployment.md
+    - Log Collection: operator/log-collection.md
+    - Grafana Dashboards: operator/dashboards.md
+    - Notifications: operator/notifications.md
+    - Authentication Setup: operator/auth.md
+    - Adding an Instrument: operator/new-instrument.md
