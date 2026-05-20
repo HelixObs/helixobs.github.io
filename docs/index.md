@@ -1,4 +1,6 @@
-# HelixObs
+<div style="background:#1a2335; border-radius:12px; padding:24px 32px; margin-bottom:32px;">
+  <img src="assets/wordmark.svg" alt="HelixObs" style="width:100%; max-width:480px; display:block;" />
+</div>
 
 **Entity-centric observability for scientific instrument pipelines.**
 
