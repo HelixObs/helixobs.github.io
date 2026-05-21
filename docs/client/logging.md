@@ -115,17 +115,15 @@ Log **inside** the span to capture entity context:
 
 ```python
 # Correct — span is active, helix_entity_id is injected
-with tel.track("ingest", id="block-001") as token:
+with tel.create("ingest", id="block-001"):
     log.info("ingesting block")
     ingest()
     log.info("done")
-    token.complete()
 
 # Wrong — span has ended, no entity context
-with tel.track("ingest", id="block-001") as token:
+with tel.create("ingest", id="block-001"):
     ingest()
-    token.complete()
-log.info("done")  # helix_entity_id missing
+log.info("done")  # helix_entity_id missing — logged after span ended
 ```
 
 ## GitHub source links

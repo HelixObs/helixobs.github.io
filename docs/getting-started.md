@@ -39,7 +39,7 @@ HelixObs is a self-hosted platform — there is no managed cloud tier. Before an
         process_name="MY_INST/ingest",
     )
 
-    with tel.track("ingest", id="product-001") as token:
+    with tel.create("ingest", id="product-001") as token:
         log.info("processing product")
         result = process("product-001")
         token.complete(metadata={"size_mb": result.size_mb})

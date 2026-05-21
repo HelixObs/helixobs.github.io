@@ -15,16 +15,16 @@ Parent IDs form a DAG. Declare them when creating an entity:
 
 ```python
 # block-001 was produced by no parents (it is a root entity)
-with tel.track("ingest", id="block-001") as t:
-    t.complete()
+with tel.create("ingest", id="block-001"):
+    run_ingest()
 
 # candidate-42 was derived from block-001
-with tel.track("search", id="candidate-42", parents=["block-001"]) as t:
-    t.complete()
+with tel.create("search", id="candidate-42", parents=["block-001"]):
+    run_search()
 
 # event-7 was derived from multiple candidates
-with tel.track("cluster", id="event-7", parents=["candidate-42", "candidate-43"]) as t:
-    t.complete()
+with tel.create("cluster", id="event-7", parents=["candidate-42", "candidate-43"]):
+    run_cluster()
 ```
 
 The gateway resolves parent IDs to OTel span links server-side and stores the graph in TimescaleDB. The Grafana Entity Inspector renders it as a clickable DAG.
@@ -35,7 +35,7 @@ Parents do not need to live in the same process or host. If the parent entity wa
 
 ## Tokens
 
-A **token** represents the lifecycle of one entity through one processing stage. It maps directly to an [OpenTelemetry](https://opentelemetry.io/) span. The span is started when you call `.start()` (or enter a `with` block) and ended when you call `.complete()` or `.error()`.
+A **token** represents the lifecycle of one entity through one processing stage. It maps directly to an [OpenTelemetry](https://opentelemetry.io/) span. The span is started when you call `.start()` (or enter a `with` block) and ended when you call `.complete()` or `.error()` — or automatically on clean exit from a `with` block.
 
 ```python
 token = tel.create("search", id="candidate-42", parents=["block-001"])

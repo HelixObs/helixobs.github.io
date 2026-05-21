@@ -94,11 +94,11 @@ def generate_report():
 ### Linear chain
 
 ```python
-with tel.create("ingest", id="block-001") as t:
-    t.complete()
+with tel.create("ingest", id="block-001"):
+    run_ingest()
 
-with tel.create("search", id="candidate-42", parents=["block-001"]) as t:
-    t.complete()
+with tel.create("search", id="candidate-42", parents=["block-001"]):
+    run_search()
 ```
 
 ### N-to-1 (fan-in)
@@ -106,8 +106,8 @@ with tel.create("search", id="candidate-42", parents=["block-001"]) as t:
 ```python
 # Many partial results → one aggregated output
 partial_ids = ["result-001", "result-002", "result-003"]
-with tel.create("aggregate", id="event-7", parents=partial_ids) as t:
-    t.complete()
+with tel.create("aggregate", id="event-7", parents=partial_ids):
+    aggregate()
 ```
 
 ### Cross-process
@@ -116,12 +116,12 @@ Parent IDs can come from any upstream process — no shared memory required. The
 
 ```python
 # In process A:
-with tel.create("ingest", id="block-001") as t:
-    t.complete()
+with tel.create("ingest", id="block-001"):
+    run_ingest()
 
 # In process B (different host):
-with tel.create("search", id="candidate-42", parents=["block-001"]) as t:
-    t.complete()
+with tel.create("search", id="candidate-42", parents=["block-001"]):
+    run_search()
 ```
 
 ---
@@ -132,7 +132,6 @@ with tel.create("search", id="candidate-42", parents=["block-001"]) as t:
 with tel.create("classify", id="event-7", parents=["candidate-42"]) as token:
     label = classify()
     token.add_event("classified", attributes={"label": label, "confidence": "0.97"})
-    token.complete()
 ```
 
 Events named `helix.event.*` are stored in `entity_events` and appear in the Entity Inspector timeline.
@@ -144,12 +143,11 @@ Events named `helix.event.*` are stored in `entity_events` and appear in the Ent
 For internal sub-steps that should appear in Tempo but do not need their own entity row, use `child_span()`:
 
 ```python
-with tel.create("process", id="block-001") as token:
+with tel.create("process", id="block-001"):
     with tel.child_span("filter", attributes={"filter.type": "bandpass"}):
         apply_filter()
     with tel.child_span("transform"):
         transform()
-    token.complete()
 ```
 
 Child spans inherit the current entity's trace context and appear in the Tempo waterfall but do not create additional entity rows in TimescaleDB.
