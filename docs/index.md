@@ -11,7 +11,7 @@ An **entity** is any data product your pipeline creates, transforms, or consumes
 Every entity accumulates:
 
 - a **provenance graph** — which upstream entities it was derived from, and which downstream entities it produced
-- a **trace** — the distributed OTel trace of every processing stage
+- a **trace** — the distributed [OpenTelemetry](https://opentelemetry.io/) trace of every processing stage
 - **logs** — all log lines emitted while any stage was active, correlated by entity ID
 - **events** — named domain milestones and errors attached at any stage
 

@@ -35,7 +35,7 @@ Parents do not need to live in the same process or host. If the parent entity wa
 
 ## Tokens
 
-A **token** represents the lifecycle of one entity through one processing stage. It maps directly to an OTel span. The span is started when you call `.start()` (or enter a `with` block) and ended when you call `.complete()` or `.error()`.
+A **token** represents the lifecycle of one entity through one processing stage. It maps directly to an [OpenTelemetry](https://opentelemetry.io/) span. The span is started when you call `.start()` (or enter a `with` block) and ended when you call `.complete()` or `.error()`.
 
 ```python
 token = tel.create("search", id="candidate-42", parents=["block-001"])
