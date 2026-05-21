@@ -63,7 +63,7 @@ with tel.operate("search", entity_id="block-001") as token:
     token.set_attribute("dm", result.dm)
 ```
 
-When using the Layer 0 (primitive) API you can also pass all metadata at once to `complete()`:
+When using the Explicit API you can also pass all metadata at once to `complete()`:
 
 ```python
 token = tel.operate("search", entity_id="block-001")

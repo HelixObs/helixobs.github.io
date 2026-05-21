@@ -41,23 +41,23 @@ Configures logging and returns a ready-to-use `Instrument` stamped with the same
 
 ### `Instrument.create(stage, *, id, parents=None) → Token`
 
-Returns a `Token` for a new entity. Works as a plain object (Layer 0), context manager (Layer 1), or decorator (Layer 2).
+Returns a `Token` for a new entity. Works as a context manager, decorator, or explicit API — see [Tracking Entities](tracking.md).
 
 ```python
-# Layer 0
-token = tel.create("ingest", id="block-001", parents=["upstream"])
-token.start()
-token.complete()
-
-# Layer 1 — context manager
+# Context manager (recommended)
 with tel.create("ingest", id="block-001", parents=["upstream"]) as token:
     token.set_attribute("size_mb", 42)
     # complete() called automatically on exit
 
-# Layer 2 — decorator (id can be a callable receiving the function args)
+# Decorator
 @tel.create("ingest", id=lambda block_id, **_: block_id)
 def ingest(block_id):
     ...
+
+# Explicit API
+token = tel.create("ingest", id="block-001", parents=["upstream"])
+token.start()
+token.complete()
 ```
 
 ### `Instrument.operate(operation, *, entity_id) → Token`

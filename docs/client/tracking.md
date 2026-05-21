@@ -1,10 +1,10 @@
 # Tracking Entities
 
-The client library offers three integration layers. All three emit identical OTLP spans — choose whichever fits your code style.
+The client library offers three ways to track entities. All three emit identical OTLP spans — choose whichever fits your code structure.
 
 ## Setup
 
-All three layers require a configured `Instrument`. Use `setup()` at application startup:
+All three styles require a configured `Instrument`. Use `setup()` at application startup:
 
 ```python
 from helixobs.setup import setup
@@ -19,35 +19,9 @@ tel = setup(
 
 ---
 
-## Layer 0 — Token API
+## Context manager *(recommended)*
 
-Explicit start/complete/error. Use this when entity creation and completion happen in different functions or callbacks.
-
-```python
-token = tel.create("search", id="candidate-42", parents=["block-001"])
-token.start()
-
-try:
-    result = run_search()
-    token.complete(metadata={"score": result.score})
-except Exception as e:
-    token.error({"message": str(e)})
-```
-
-For operations on existing entities:
-
-```python
-token = tel.operate("archive", entity_id="event-7")
-token.start()
-write_archive()
-token.complete(metadata={"path": "/data/event-7.h5"})
-```
-
----
-
-## Layer 1 — Context Manager
-
-`create()` and `operate()` return a `Token` that is also a context manager. The span starts on entry and `complete()` is called automatically on clean exit; `error()` is called automatically if an exception propagates.
+`create()` and `operate()` return a `Token` that works as a Python context manager. The span starts on entry and `complete()` is called automatically on clean exit; `error()` is called automatically if an exception propagates.
 
 Use `token.set_attribute()` inside the block to attach metadata — no explicit `complete()` needed:
 
@@ -68,9 +42,9 @@ with tel.operate("archive", entity_id="event-7") as token:
 
 ---
 
-## Layer 2 — Decorator
+## Decorator
 
-The same `Token` returned by `create()` / `operate()` is also callable as a decorator. Pass a callable for `id` and `parents` so the entity ID is derived from the function arguments at call time.
+The same `Token` is also usable as a decorator. Pass a callable for `id` and `parents` so the entity ID is derived from the function arguments at call time.
 
 ```python
 @tel.create("search", id=lambda block_id, **_: block_id)
@@ -87,6 +61,32 @@ Or pass a static ID if it is known at decoration time:
 @tel.operate("daily-report", entity_id="report-2026-05-20")
 def generate_report():
     ...
+```
+
+---
+
+## Explicit API
+
+Use this when entity creation and completion happen in different functions or callbacks — for example, when a span is opened in one thread and closed in another.
+
+```python
+token = tel.create("search", id="candidate-42", parents=["block-001"])
+token.start()
+
+try:
+    result = run_search()
+    token.complete(metadata={"score": result.score})
+except Exception as e:
+    token.error({"message": str(e)})
+```
+
+For operations on existing entities:
+
+```python
+token = tel.operate("archive", entity_id="event-7")
+token.start()
+write_archive()
+token.complete(metadata={"path": "/data/event-7.h5"})
 ```
 
 ---
