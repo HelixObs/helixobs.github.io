@@ -7,7 +7,7 @@ By default the herald runs without authentication — suitable for trusted netwo
 Instruments authenticate once at startup: they call `POST /auth/token` with their credential, receive a short-lived JWT (24h), and attach it to all subsequent gRPC calls. The client library handles this transparently.
 
 ```
-Instrument              Gateway
+Instrument              Herald
     │                      │
     │  POST /auth/token     │
     │  {credential, id} ──► │  validate credential

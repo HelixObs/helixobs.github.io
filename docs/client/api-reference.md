@@ -26,13 +26,13 @@ Configures logging and returns a ready-to-use `Instrument` stamped with the same
 |---|---|---|---|
 | `service_name` | `str` | — | OTel service name for traces and logs |
 | `instrument_id` | `str` | — | Short instrument identifier (e.g. `"MY_INST"`). Required unless `instrument_class` owns its own ID |
-| `endpoint` | `str` | `"localhost:4317"` | Gateway gRPC address |
+| `endpoint` | `str` | `"localhost:4317"` | Herald gRPC address |
 | `insecure` | `bool` | `True` | Disable TLS (set `False` in production with TLS) |
 | `otlp` | `bool` | `False` | Ship logs via OTLP instead of stdout JSON |
 | `log_endpoint` | `str\|None` | `None` | OTel Collector address for logs. Falls back to `OTEL_EXPORTER_OTLP_ENDPOINT`, then `http://localhost:4317` |
 | `process_name` | `str\|None` | `None` | Pipeline process name for the Pipeline Logs dashboard. Use `INST_ID/pipeline/stage` convention |
 | `credential` | `str\|Callable\|None` | `None` | Registration secret or callable returning one. Required when herald auth is enabled |
-| `auth_endpoint` | `str\|None` | `None` | Gateway auth token endpoint. Required when `credential` is set |
+| `auth_endpoint` | `str\|None` | `None` | Herald auth token endpoint. Required when `credential` is set |
 | `instrument_class` | `type` | `Instrument` | Subclass to instantiate instead of base `Instrument` |
 
 ---

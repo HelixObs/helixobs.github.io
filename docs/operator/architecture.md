@@ -9,7 +9,7 @@ Instrument pipeline
   │  OTLP gRPC (traces)
   ▼
 ┌─────────────────────────────────────────────────────────┐
-│  Gateway  :4317                                         │
+│  Herald  :4317                                         │
 │  ─ enriches spans with provenance links                 │
 │  ─ writes entities / events / operations → TimescaleDB  │
 │  ─ forwards enriched spans → OTel Collector             │
@@ -70,7 +70,7 @@ Instrument pipeline
 
 | Service | Port | Protocol | Notes |
 |---|---|---|---|
-| Gateway (OTLP) | `4317` | gRPC plaintext | Instrument pipelines connect here |
+| Herald (OTLP) | `4317` | gRPC plaintext | Instrument pipelines connect here |
 | OTel Collector (logs) | `4319` | gRPC plaintext | For pipelines using `otlp=True` log shipping |
 | Grafana | `3001` | HTTPS (Caddy) | Dashboard UI |
 | UI | `443` | HTTPS (Caddy) | Entity Inspector web app |
@@ -79,8 +79,8 @@ Instrument pipeline
 
 | Service | Port | Notes |
 |---|---|---|
-| Gateway HTTP API | `8080` | `GET /api/v1/entity/{id}/graph` |
-| Gateway metrics | `2112` | Prometheus scrape target |
+| Herald HTTP API | `8080` | `GET /api/v1/entity/{id}/graph` |
+| Herald metrics | `2112` | Prometheus scrape target |
 | Sherlock metrics | `9102` | Prometheus scrape target |
 | Prometheus | `9091` | Query UI |
 | TimescaleDB | `5432` | Direct DB access |
@@ -92,7 +92,7 @@ Instrument pipeline
 ### Traces
 
 ```
-Instrument  →  Gateway :4317  →  OTel Collector :4317  →  Tempo
+Instrument  →  Herald :4317  →  OTel Collector :4317  →  Tempo
 ```
 
 The herald enriches each span with resolved parent links before forwarding. Spans without `helix.entity.id` are forwarded unchanged.

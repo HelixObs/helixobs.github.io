@@ -115,7 +115,7 @@ Decide which log delivery path the instrument will use and communicate it to the
 
 Give them:
 
-- Gateway gRPC address: `helixobs.example.org:4317`
+- Herald gRPC address: `helixobs.example.org:4317`
 - Their `instrument_id`
 - Auth credential (if auth enabled): plaintext secret + auth endpoint
 - Log delivery path decision: sidecar or OTLP, and the relevant endpoint

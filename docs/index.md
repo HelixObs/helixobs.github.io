@@ -40,7 +40,7 @@ Instrument pipeline                 HelixObs stack
 ─────────────────                   ──────────────────────────────────
 helixobs client library
   create() / operate()
-  ─► BatchSpanProcessor   ─────────► Gateway :4317 (gRPC)
+  ─► BatchSpanProcessor   ─────────► Herald :4317 (gRPC)
                                        │  enrich spans
                                        │  resolve parent links
                                        │  write to TimescaleDB
