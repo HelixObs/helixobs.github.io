@@ -43,12 +43,14 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - tables
   - attr_list
+  - md_in_html
 
 plugins:
   - search
 
 nav:
   - Home: index.md
+  - Platform Tour: tour.md
   - Getting Started: getting-started.md
   - For Scientists & Developers:
     - Overview: client/index.md

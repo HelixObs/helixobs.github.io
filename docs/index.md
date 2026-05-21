@@ -74,6 +74,7 @@ From a pipeline team's perspective, the herald is a single endpoint to configure
 
 | | |
 |---|---|
+| [Platform Tour](tour.md) | Screenshots of every UI view — what you get after instrumenting |
 | [Getting Started](getting-started.md) | Instrument your first pipeline in 5 minutes |
 | [For Scientists & Developers](client/index.md) | Client library reference, logging modes, auth |
 | [For Operators](operator/index.md) | Stack deployment, Alloy config, dashboards, notifications |
