@@ -51,7 +51,8 @@ token.complete()
 
 # Layer 1 — context manager
 with tel.create("ingest", id="block-001", parents=["upstream"]) as token:
-    token.complete(metadata={"size_mb": 42})
+    token.set_attribute("size_mb", 42)
+    # complete() called automatically on exit
 
 # Layer 2 — decorator (id can be a callable receiving the function args)
 @tel.create("ingest", id=lambda block_id, **_: block_id)

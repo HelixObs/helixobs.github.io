@@ -47,18 +47,20 @@ token.complete(metadata={"path": "/data/event-7.h5"})
 
 ## Layer 1 — Context Manager
 
-`create()` and `operate()` return a `Token` that is also a context manager. The span starts on entry and `complete()` is called on clean exit; `error()` is called automatically if an exception propagates.
+`create()` and `operate()` return a `Token` that is also a context manager. The span starts on entry and `complete()` is called automatically on clean exit; `error()` is called automatically if an exception propagates.
+
+Use `token.set_attribute()` inside the block to attach metadata — no explicit `complete()` needed:
 
 ```python
 with tel.create("search", id="candidate-42", parents=["block-001"]) as token:
     result = run_search()
-    token.complete(metadata={"score": result.score})
+    token.set_attribute("score", result.score)
 ```
 
 ```python
 with tel.operate("archive", entity_id="event-7") as token:
     write_archive()
-    token.complete(metadata={"path": "/data/event-7.h5"})
+    token.set_attribute("path", "/data/event-7.h5")
 ```
 
 !!! tip

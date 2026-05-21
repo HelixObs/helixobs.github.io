@@ -8,7 +8,9 @@ HelixObs revolves around two ideas:
 
 **Entities** are data products — anything your pipeline creates, transforms, or consumes. Each entity has a stable string ID chosen by you (a database key, a filename, a UUID). The ID follows the entity across every pipeline stage, compute node, and instrument.
 
-**Provenance** is the graph of which entities produced which. You declare parent IDs when creating an entity; the herald assembles these into a queryable DAG.
+**Provenance** is the graph of which entities produced which. You declare parent IDs when creating an entity; the **herald** — the HelixObs server your client connects to — assembles these into a queryable DAG stored in TimescaleDB and visualised in Grafana.
+
+The herald is invisible to your code: you configure its address once in `helixobs.setup()` and the client library handles the rest. See [Core Concepts](concepts.md#herald) for a full explanation of what it does.
 
 ## Pages in this section
 

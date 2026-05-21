@@ -44,6 +44,36 @@ token.start()
 token.complete(metadata={"score": 12.4, "frequency": 332.1})
 ```
 
+### Attaching metadata
+
+Metadata is not limited to a single call. You can attach values at any point in an entity's lifecycle — at creation, and again through subsequent operations as more information becomes available. Use `token.set_attribute()` inside the `with` block; the context manager calls `complete()` automatically on exit:
+
+```python
+# Entity comes into existence — metadata known upfront
+with tel.create("ingest", id="block-001") as token:
+    data = ingest()
+    token.set_attribute("n_samples", len(data))
+    token.set_attribute("beam", 42)
+
+# Later stage — metadata reflects processing outcome
+with tel.operate("search", entity_id="block-001") as token:
+    result = search(data)
+    token.set_attribute("score", result.score)
+    token.set_attribute("frequency_mhz", result.freq)
+    token.set_attribute("dm", result.dm)
+```
+
+When using the Layer 0 (primitive) API you can also pass all metadata at once to `complete()`:
+
+```python
+token = tel.operate("search", entity_id="block-001")
+token.start()
+result = search(data)
+token.complete(metadata={"score": result.score, "frequency_mhz": result.freq, "dm": result.dm})
+```
+
+All metadata is stored in TimescaleDB and is available on the **[Monitor page](../monitor)** — a configurable time-series view of entity metadata fields across all entities. This makes it straightforward to track pipeline health metrics (detection scores, SNR, processing latency) without setting up separate dashboards.
+
 ## Operations
 
 An **operation** is work done on an entity that already exists — archiving, registration, replication, reprocessing. It differs from entity creation in two ways:
@@ -65,10 +95,26 @@ Use `operate()` whenever your pipeline does work on an entity that was created u
 Named domain events can be attached to any entity or operation:
 
 ```python
-token.add_event("calibration-applied", metadata={"solution_id": "cal-2026-05-20"})
+token.add_event("helix.event.classified", metadata={"label": "FRB", "dm": "348.8", "confidence": "0.97"})
 ```
 
-Any event whose name starts with `helix.event.` is extracted by the herald and stored in the `entity_events` table. Use this for scientifically notable signals — classification changes, quality flags, derived measurements — that you want queryable independently of the full trace.
+Any event whose name starts with `helix.event.` is extracted by the herald and stored in the `entity_events` table, and appears on the Entity Inspector timeline in Grafana. Use this for scientifically notable signals — classification changes, quality flags, derived measurements — that you want queryable independently of the full trace.
+
+### Triggering notifications from events
+
+Events can also trigger **Slack messages and GitHub issues** if the event name is configured in your instrument's notification config. For example, to notify on every `helix.event.classified` event, your operator adds to the instrument YAML:
+
+```yaml
+notifications:
+  events:
+    helix.event.classified:
+      slack:
+        channel: "#detections"
+        sample_window_seconds: 60
+        max_per_window: 5
+```
+
+Contact your operator to configure notifications for specific event types.
 
 ## Errors
 
@@ -92,7 +138,36 @@ with tel.operate("post-process", entity_id=product_id) as token:
     # context manager calls complete() on clean exit
 ```
 
-Both methods emit a `helix.error` event that the herald stores in `entity_events` and uses to trigger notifications (Slack, GitHub Issues).
+Both methods emit a `helix.error` event that the herald stores in `entity_events`.
+
+### Notifications for errors
+
+If your instrument is configured for error notifications, every `helix.error` event automatically triggers a **Slack message** and/or opens a **GitHub issue**. The herald deduplicates by error fingerprint — repeated identical errors update the existing issue body rather than creating noise. Rate limiting, silence rules, and auto-close behaviour are all configured by your operator per instrument.
+
+A Slack alert includes the error message, entity ID, a direct link to the Entity Inspector, and a "Manage Silences" button. A GitHub issue tracks occurrence count, first/last seen, and the list of affected entities — updated on every recurrence.
+
+No code changes are needed on your side. As long as `token.error()` or `token.add_error()` is called with a descriptive `metadata` dict, the notification system has everything it needs:
+
+```python
+token.error({
+    "message": "NFS write failed",
+    "path": "/data/output.h5",
+    "stage": "archive",
+})
+```
+
+## Herald
+
+The **herald** is the HelixObs server component your client library sends spans to. It is a gRPC service that listens on port `4317` — the standard OpenTelemetry port — so no custom protocol is required on the pipeline side.
+
+When your code calls `create()` or `operate()`, the `helixobs` library exports an OTLP span to the herald in the background. The herald then:
+
+- **Resolves provenance** — matches each `parent_id` to a real OTel span link, even if the parent was created in a different process or host
+- **Writes to TimescaleDB** — stores entity rows, operation records, and `helix.*` events in a queryable time-series database
+- **Dispatches notifications** — sends Slack messages and opens GitHub issues for `helix.error` events, with dedup and rate limiting
+- **Forwards spans** — passes the enriched batch to the downstream OTel Collector, which delivers traces to Tempo and logs to Loki
+
+From a developer perspective, the herald is invisible: you configure its address once (`OTEL_EXPORTER_OTLP_ENDPOINT`) and the client handles the rest. Wherever these docs say "the herald resolves..." or "the herald stores...", this is the service doing that work.
 
 ## The instrument ID
 

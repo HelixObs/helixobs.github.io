@@ -62,6 +62,14 @@ helixobs client library
                                          Prometheus, TimescaleDB
 ```
 
+### The Herald
+
+The **herald** is HelixObs's central intelligence layer — the only HelixObs-specific service an instrument pipeline talks to directly. It listens for OTLP spans on port `4317`, the standard OpenTelemetry port, so no custom protocol is required.
+
+When a span arrives carrying `helix.entity.id`, the herald does the work that standard OTel cannot: it resolves parent IDs across process boundaries, writes the entity provenance graph to TimescaleDB, dispatches error notifications to Slack and GitHub, and forwards the enriched span batch onward to the standard OTel Collector. Spans without `helix.entity.id` are forwarded unchanged — the herald is fully transparent to non-HelixObs traffic.
+
+From a pipeline team's perspective, the herald is a single endpoint to configure and forget. The `helixobs` client library handles the connection.
+
 ## Documentation structure
 
 | | |
