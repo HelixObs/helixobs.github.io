@@ -85,7 +85,7 @@ An **operation** is work done on an entity that already exists — archiving, re
 # The entity "event-7" already exists. This records post-processing work on it.
 with tel.operate("archive", entity_id="event-7") as t:
     write_to_archive("event-7")
-    t.complete(metadata={"archive_path": "/data/event-7.h5"})
+    t.set_attribute("archive_path", "/data/event-7.h5")
 ```
 
 Use `operate()` whenever your pipeline does work on an entity that was created upstream — even in a different process or pipeline run.

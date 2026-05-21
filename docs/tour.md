@@ -27,7 +27,6 @@ The [Entity Inspector](operator/dashboards.md#entity-inspector) is your primary 
 - **Inspect the distributed trace** — the full Tempo waterfall of every processing stage, embedded inline
 - **Browse correlated logs** — every log line emitted while this entity was being processed, across all hosts
 - **Review the event timeline** — every `helix.event.*` milestone and `helix.error` recorded against the entity, in order
-- **Launch Sherlock** — click "Diagnose with AI" on any error entity to start a root-cause investigation
 
 Nodes with `helix.error` events are highlighted in the DAG so errors are visible at a glance without opening anything.
 
@@ -73,7 +72,8 @@ The Monitor page plots any entity metadata field as a time-series across all ent
 
 ## Slack alerts
 
-When a `token.error()` call is recorded, the [herald](client/concepts.md#herald) dispatches a Slack message with the error details, a direct link to the Entity Inspector, and a **Manage Silences** button that takes you to a pre-filtered silencing UI for that exact error fingerprint.
+Assuming that notifications are configured per instrument by your operator — see [Notifications](operator/notifications.md).
+When a `token.error() | token.add_error()` call is recorded, the [herald](client/concepts.md#herald) dispatches a Slack message with the error details, a direct link to the Entity Inspector, and a **Manage Silences** button that takes you to a pre-filtered silencing UI for that exact error fingerprint.
 
 Repeated identical errors are rate-limited and digested — you get one message per window, not a flood.
 
@@ -81,8 +81,6 @@ Repeated identical errors are rate-limited and digested — you get one message 
   ![Slack alert](assets/screenshots/slack-alert.png)
   <figcaption>Slack alert with entity ID, error message, stage, and action buttons. The "Manage Silences" button links directly to the notifications page pre-filtered for this error fingerprint.</figcaption>
 </figure>
-
-Notifications are configured per instrument by your operator — see [Notifications](operator/notifications.md).
 
 ---
 

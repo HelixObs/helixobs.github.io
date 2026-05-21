@@ -67,7 +67,7 @@ Returns a `Token` for work on an existing entity. Writes to `entity_operations`,
 ```python
 with tel.operate("archive", entity_id="event-7") as token:
     write_archive()
-    token.complete(metadata={"path": "/data/event-7.h5"})
+    token.set_attribute("path", "/data/event-7.h5")
 ```
 
 ### `Instrument.child_span(name, *, parent_id=None, attributes=None)`
@@ -78,7 +78,6 @@ Context manager for a child span that appears in the Tempo trace waterfall but d
 with tel.create("process", id="block-001") as token:
     with tel.child_span("filter", attributes={"filter.type": "bandpass"}):
         apply_filter()
-    token.complete()
 ```
 
 ### `Instrument.shutdown()`

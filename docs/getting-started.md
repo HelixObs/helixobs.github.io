@@ -42,7 +42,7 @@ HelixObs is a self-hosted platform — there is no managed cloud tier. Before an
     with tel.create("ingest", id="product-001") as token:
         log.info("processing product")
         result = process("product-001")
-        token.complete(metadata={"size_mb": result.size_mb})
+		token.set_attribute("size_mb", result.size_mb)
     ```
 
     The entity `product-001` is now visible in the Grafana Entity Inspector, its logs are in Loki, and its trace is in Tempo.
