@@ -102,10 +102,8 @@ If your instrument is configured with a GitHub repo, every distinct error finger
 Click **Diagnose with AI** on any error entity in the Entity Inspector. Sherlock fetches logs, traces, provenance, and — if configured — the relevant source code, then streams a root-cause analysis directly to the UI. You can reply to ask follow-up questions.
 
 <figure markdown>
-  <div style="background:#f5f5f5;border:2px dashed #ccc;border-radius:8px;padding:48px 24px;text-align:center;color:#999;font-size:14px;line-height:2">
-    Animated GIF coming<br><code style="font-size:12px">docs/assets/screenshots/sherlock.gif</code>
-  </div>
-  <figcaption>Sherlock streaming a root-cause analysis: fetching logs and source code, identifying the failing NFS mount, and classifying the error with a suggested fix.</figcaption>
+  ![Sherlock AI diagnosis](assets/screenshots/sherlock.gif)
+  <figcaption>Sherlock streaming a root-cause analysis: fetching logs, traces, and provenance, then classifying the error and suggesting a fix.</figcaption>
 </figure>
 
 Sherlock results are stored in instrument memory — the same investigation is replayed instantly on a recurrence without a new API call.
