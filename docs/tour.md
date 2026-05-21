@@ -1,6 +1,8 @@
 # Platform Tour
 
-Once your pipeline is instrumented, HelixObs gives you eight things without any additional work. This page shows each of them.
+New here? Start with the [home page](index.md) for an introduction to what an entity is and why HelixObs is built around them.
+
+Once your pipeline is instrumented, here is what you get.
 
 ---
 
