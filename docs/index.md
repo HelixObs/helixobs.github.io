@@ -21,7 +21,7 @@ This is the core idea: instead of asking *"what did service X do?"*, you ask *"w
 
 Standard observability tools track *requests* or *services*. Scientific pipelines produce *data products* that flow through dozens of asynchronous stages across many hosts over minutes or hours. A single product might touch a detection process, a filtering service, an archiver, and a catalog registration system before it is complete.
 
-Distributed tracing alone cannot correlate these: the pipeline is not a single request — stages run independently and are not causally linked in the OTel sense. HelixObs solves this with an entity DAG: each data product is an entity, each processing stage records a provenance link to its inputs, and the gateway assembles these links into a queryable graph.
+Distributed tracing alone cannot correlate these: the pipeline is not a single request — stages run independently and are not causally linked in the OTel sense. HelixObs solves this with an entity DAG: each data product is an entity, each processing stage records a provenance link to its inputs, and the herald assembles these links into a queryable graph.
 
 ## What you get
 
@@ -54,7 +54,7 @@ helixobs client library
   ─► stdout JSON          ─────────► Alloy (Docker scrape)
                                        └─► Loki (sidecar logs)
 
-                                     Prometheus (scrapes gateway,
+                                     Prometheus (scrapes herald,
                                        sherlock, otel-collector…)
 
                                      Grafana

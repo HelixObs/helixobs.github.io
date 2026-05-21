@@ -1,6 +1,6 @@
 # Authentication Setup
 
-By default the gateway runs without authentication — suitable for trusted network environments. When `JWT_SECRET` is set, the gateway enforces authentication on all OTLP gRPC connections and HTTP API calls.
+By default the herald runs without authentication — suitable for trusted network environments. When `JWT_SECRET` is set, the herald enforces authentication on all OTLP gRPC connections and HTTP API calls.
 
 ## How it works
 
@@ -33,7 +33,7 @@ openssl rand -hex 32
 
 With `JWT_SECRET` set, any OTLP connection without a valid JWT is rejected. Instrument teams must update their pipelines before you enable enforcement — coordinate the rollout:
 
-1. Deploy gateway with `JWT_SECRET` unset (no enforcement).
+1. Deploy herald with `JWT_SECRET` unset (no enforcement).
 2. Distribute credentials to instrument teams (see below).
 3. Instrument teams update their pipelines to call `/auth/token`.
 4. Set `JWT_SECRET` — enforcement begins.
@@ -56,7 +56,7 @@ Each instrument independently configures how its credential is validated. Set th
 
 ### Secret backend
 
-The instrument presents a registration secret. The gateway compares the SHA-256 hash — the plaintext is never stored.
+The instrument presents a registration secret. The herald compares the SHA-256 hash — the plaintext is never stored.
 
 ```yaml
 instrument_id: MY_INST
@@ -90,7 +90,7 @@ tel = setup(
 
 ### Token introspection backend
 
-The instrument presents a token it already holds (e.g. from its own authentication system). The gateway validates it by calling a remote `/verify` endpoint — HTTP 200 = valid.
+The instrument presents a token it already holds (e.g. from its own authentication system). The herald validates it by calling a remote `/verify` endpoint — HTTP 200 = valid.
 
 ```yaml
 instrument_id: MY_INST
@@ -118,7 +118,7 @@ The callable is invoked fresh on each HelixObs JWT refresh so short-lived upstre
 
 Give each instrument team:
 
-1. The gateway auth endpoint: `https://helixobs.example.org/auth/token`
+1. The herald auth endpoint: `https://helixobs.example.org/auth/token`
 2. Their `instrument_id`
 3. Their registration secret (secret backend) or the `verify_url` they should configure (introspection backend)
 

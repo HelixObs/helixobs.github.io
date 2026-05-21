@@ -51,13 +51,13 @@ HelixObs ships five Grafana dashboards, provisioned automatically from JSON file
 
 **Data source:** Prometheus, TimescaleDB
 
-**Dependencies:** No Loki or Alloy configuration required — data comes entirely from gateway metrics and TimescaleDB.
+**Dependencies:** No Loki or Alloy configuration required — data comes entirely from herald metrics and TimescaleDB.
 
 ---
 
 ## Platform Health
 
-**Purpose:** Infrastructure health of the HelixObs stack itself — gateway throughput, parent resolution rate, DB write latency, trace store size, OTel Collector pipeline metrics, Loki and Tempo ingestion rates, host CPU/memory/disk.
+**Purpose:** Infrastructure health of the HelixObs stack itself — herald throughput, parent resolution rate, DB write latency, trace store size, OTel Collector pipeline metrics, Loki and Tempo ingestion rates, host CPU/memory/disk.
 
 **Data source:** Prometheus (all metrics)
 

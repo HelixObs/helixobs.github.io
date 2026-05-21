@@ -7,7 +7,7 @@ HelixObs injects entity context into every log line emitted while a span is acti
 Call `setup()` with a `service_name` — it wires logging and tracing together:
 
 ```python
-tel = setup("my-pipeline", instrument_id="MY_INST", endpoint="gateway:4317")
+tel = setup("my-pipeline", instrument_id="MY_INST", endpoint="herald:4317")
 ```
 
 Or call `configure_logging()` directly if you need logs without traces:
@@ -22,7 +22,7 @@ configure_logging()  # sidecar mode (default)
 === "Sidecar mode (default)"
 
     ```python
-    tel = setup("my-pipeline", instrument_id="MY_INST", endpoint="gateway:4317")
+    tel = setup("my-pipeline", instrument_id="MY_INST", endpoint="herald:4317")
     # otlp=False is the default — no extra argument needed
     ```
 
@@ -45,7 +45,7 @@ configure_logging()  # sidecar mode (default)
     tel = setup(
         "my-pipeline",
         instrument_id="MY_INST",
-        endpoint="gateway:4317",
+        endpoint="herald:4317",
         otlp=True,
         log_endpoint="http://otel-collector:4317",  # or set OTEL_EXPORTER_OTLP_ENDPOINT
     )

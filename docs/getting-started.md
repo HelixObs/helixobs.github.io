@@ -1,6 +1,6 @@
 # Getting Started
 
-HelixObs is a self-hosted platform — there is no managed cloud tier. Before any pipeline can ship telemetry, an operator must deploy the HelixObs stack (gateway, database, Grafana, etc.) and provide a connection endpoint.
+HelixObs is a self-hosted platform — there is no managed cloud tier. Before any pipeline can ship telemetry, an operator must deploy the HelixObs stack (herald, database, Grafana, etc.) and provide a connection endpoint.
 
 **Which path applies to you?**
 
@@ -8,13 +8,13 @@ HelixObs is a self-hosted platform — there is no managed cloud tier. Before an
 
     Start with [Stack Architecture](operator/architecture.md) to understand what you are deploying, then follow [Deployment](operator/deployment.md) to bring it up with Docker Compose.
 
-    Once the stack is running, share the gateway address (and auth credentials if enabled) with your instrument teams so they can connect their pipelines.
+    Once the stack is running, share the herald address (and auth credentials if enabled) with your instrument teams so they can connect their pipelines.
 
-=== "I am a developer — my operator has given me a gateway address"
+=== "I am a developer — my operator has given me a herald address"
 
     You need:
 
-    - The gateway gRPC address (e.g. `gateway.example.org:4317`)
+    - The herald gRPC address (e.g. `herald.example.org:4317`)
     - An `instrument_id` for your pipeline (agree this with your operator)
     - Auth credentials if required (your operator will provide these)
 
@@ -35,7 +35,7 @@ HelixObs is a self-hosted platform — there is no managed cloud tier. Before an
     tel = setup(
         "my-pipeline",
         instrument_id="MY_INST",
-        endpoint="gateway.example.org:4317",
+        endpoint="herald.example.org:4317",
         process_name="MY_INST/ingest",
     )
 

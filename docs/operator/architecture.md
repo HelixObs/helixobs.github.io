@@ -2,7 +2,7 @@
 
 ## Services
 
-The HelixObs stack is composed of off-the-shelf open-source components plus the HelixObs gateway and Sherlock.
+The HelixObs stack is composed of off-the-shelf open-source components plus the HelixObs herald and Sherlock.
 
 ```
 Instrument pipeline
@@ -46,7 +46,7 @@ Instrument pipeline
 
 ┌─────────────────────────────────────────────────────────┐
 │  Prometheus                                             │
-│  scrapes: gateway · sherlock · otel-collector ·         │
+│  scrapes: herald · sherlock · otel-collector ·         │
 │           loki · tempo · node-exporter                  │
 └─────────────────────────────────────────────────────────┘
 
@@ -60,7 +60,7 @@ Instrument pipeline
 ┌─────────────────────────────────────────────────────────┐
 │  Sherlock  (AI troubleshooting)                         │
 │  ─ POST /diagnose → streams root-cause analysis         │
-│  ─ queries gateway API, Loki, Prometheus, GitHub        │
+│  ─ queries herald API, Loki, Prometheus, GitHub        │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -95,7 +95,7 @@ Instrument pipeline
 Instrument  →  Gateway :4317  →  OTel Collector :4317  →  Tempo
 ```
 
-The gateway enriches each span with resolved parent links before forwarding. Spans without `helix.entity.id` are forwarded unchanged.
+The herald enriches each span with resolved parent links before forwarding. Spans without `helix.entity.id` are forwarded unchanged.
 
 ### Logs — OTLP path
 
@@ -116,14 +116,14 @@ Used when Grafana Alloy (or another collector) is already running alongside cont
 ### Metrics
 
 ```
-Prometheus  ←  scrapes  ←  gateway · sherlock · otel-collector · loki · tempo · node-exporter
+Prometheus  ←  scrapes  ←  herald · sherlock · otel-collector · loki · tempo · node-exporter
 ```
 
 Metrics are not shipped via OTLP — all services expose a Prometheus `/metrics` endpoint.
 
 ### Entity data
 
-The gateway writes directly to TimescaleDB for:
+The herald writes directly to TimescaleDB for:
 
 | Table | Written when |
 |---|---|

@@ -12,7 +12,7 @@ from helixobs.setup import setup
 tel = setup(
     "my-pipeline",
     instrument_id="MY_INST",
-    endpoint="gateway:4317",
+    endpoint="herald:4317",
     process_name="MY_INST/ingest",
 )
 ```
@@ -112,7 +112,7 @@ with tel.create("aggregate", id="event-7", parents=partial_ids):
 
 ### Cross-process
 
-Parent IDs can come from any upstream process — no shared memory required. The gateway resolves the link from its server-side TraceStore.
+Parent IDs can come from any upstream process — no shared memory required. The herald resolves the link from its server-side TraceStore.
 
 ```python
 # In process A:

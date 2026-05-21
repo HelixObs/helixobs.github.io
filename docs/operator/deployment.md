@@ -47,7 +47,7 @@ MY_INST_GITHUB_TOKEN=ghp_...
 
 | Variable | Default | Description |
 |---|---|---|
-| `JWT_SECRET` | *(empty — auth disabled)* | Comma-separated signing secrets for gateway JWT auth. Empty = auth disabled |
+| `JWT_SECRET` | *(empty — auth disabled)* | Comma-separated signing secrets for herald JWT auth. Empty = auth disabled |
 | `ANTHROPIC_API_KEY` | *(empty)* | Required for Sherlock AI troubleshooting |
 | `GITHUB_TOKEN` | *(empty)* | Used by Sherlock to fetch source files from private repos |
 
@@ -69,18 +69,18 @@ Caddy handles TLS termination for the UI (port 443) and Grafana (port 3001). It 
 For local development, Caddy issues a local CA certificate for `localhost` — no configuration needed.
 
 !!! warning
-    The gateway (`:4317`) and OTel Collector (`:4319`) currently accept plaintext gRPC. Restrict access to these ports at the firewall level to trusted instrument hosts only.
+    The herald (`:4317`) and OTel Collector (`:4319`) currently accept plaintext gRPC. Restrict access to these ports at the firewall level to trusted instrument hosts only.
 
 ## Rebuilding a single service
 
 ```bash
-docker compose build gateway && docker compose up -d gateway
+docker compose build herald && docker compose up -d herald
 ```
 
 ## Viewing logs
 
 ```bash
-docker compose logs -f gateway sherlock
+docker compose logs -f herald sherlock
 ```
 
 ## Resetting the database

@@ -1,6 +1,6 @@
 # Notifications
 
-The gateway dispatches Slack messages and GitHub issues automatically when a `helix.error` event (or any configured `helix.*` event) arrives. Configuration is per-instrument via YAML files hot-reloaded from the `instruments/` directory.
+The herald dispatches Slack messages and GitHub issues automatically when a `helix.error` event (or any configured `helix.*` event) arrives. Configuration is per-instrument via YAML files hot-reloaded from the `instruments/` directory.
 
 ## Instrument config file
 
@@ -35,7 +35,7 @@ MY_INST_SLACK_WEBHOOK=https://hooks.slack.com/services/...
 MY_INST_GITHUB_TOKEN=ghp_...
 ```
 
-Config files are reloaded every 60 seconds — no gateway restart needed for config changes.
+Config files are reloaded every 60 seconds — no herald restart needed for config changes.
 
 ## Fingerprinting and deduplication
 
@@ -118,5 +118,5 @@ events:
 |---|---|
 | No Slack messages | Webhook env var not set or wrong variable name in YAML |
 | No GitHub issues | Token env var missing, or token lacks `repo` scope |
-| Duplicate issues | See [dedup notes above](#fingerprinting-and-deduplication); may indicate gateway was restarted between GitHub API call and DB write |
+| Duplicate issues | See [dedup notes above](#fingerprinting-and-deduplication); may indicate herald was restarted between GitHub API call and DB write |
 | Notifications for known-noisy errors | Create a silence rule via the API |

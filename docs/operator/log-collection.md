@@ -128,7 +128,7 @@ or pass `log_endpoint` to `setup()`:
 tel = setup(
     "my-pipeline",
     instrument_id="MY_INST",
-    endpoint="gateway.example.org:4317",
+    endpoint="herald.example.org:4317",
     otlp=True,
     log_endpoint="http://helixobs.example.org:4319",
 )

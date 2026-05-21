@@ -1,10 +1,10 @@
 # Authentication
 
-By default, the HelixObs gateway runs without authentication — useful for local development. In production, the gateway can be configured to require a short-lived JWT before accepting OTLP spans. The client library handles token exchange transparently.
+By default, the HelixObs herald runs without authentication — useful for local development. In production, the herald can be configured to require a short-lived JWT before accepting OTLP spans. The client library handles token exchange transparently.
 
 ## When you need this
 
-Your operator will tell you if authentication is required. If `JWT_SECRET` is not set on the gateway, auth is disabled and no credential is needed.
+Your operator will tell you if authentication is required. If `JWT_SECRET` is not set on the herald, auth is disabled and no credential is needed.
 
 ## Providing a credential
 
@@ -16,9 +16,9 @@ Pass `credential` and `auth_endpoint` to `setup()`:
     tel = setup(
         "my-pipeline",
         instrument_id="MY_INST",
-        endpoint="gateway:4317",
+        endpoint="herald:4317",
         credential="my-registration-secret",
-        auth_endpoint="https://gateway.example.org/auth/token",
+        auth_endpoint="https://herald.example.org/auth/token",
     )
     ```
 
@@ -35,9 +35,9 @@ Pass `credential` and `auth_endpoint` to `setup()`:
     tel = setup(
         "my-pipeline",
         instrument_id="MY_INST",
-        endpoint="gateway:4317",
+        endpoint="herald:4317",
         credential=get_token,           # called fresh on each token refresh
-        auth_endpoint="https://gateway.example.org/auth/token",
+        auth_endpoint="https://herald.example.org/auth/token",
     )
     ```
 
@@ -46,8 +46,8 @@ Pass `credential` and `auth_endpoint` to `setup()`:
 ## What happens at startup
 
 1. The library calls `POST /auth/token` with your credential and `instrument_id`.
-2. The gateway validates the credential against its configured backend (shared secret hash or remote token introspection).
-3. On success, the gateway returns a JWT valid for 24 hours.
+2. The herald validates the credential against its configured backend (shared secret hash or remote token introspection).
+3. On success, the herald returns a JWT valid for 24 hours.
 4. The JWT is attached to all subsequent OTLP gRPC calls as `Authorization: Bearer <token>`.
 5. The library refreshes the JWT automatically when fewer than 1 hour remains.
 
@@ -58,7 +58,7 @@ If the auth endpoint is unreachable or the credential is rejected, `setup()` rai
 ## Credential security
 
 - Never hard-code credentials in source code. Use environment variables or a secrets manager.
-- The registration secret is hashed (SHA-256) on the gateway side — the plaintext is never stored.
+- The registration secret is hashed (SHA-256) on the herald side — the plaintext is never stored.
 - Share your registration secret with the operator out-of-band; only the hash goes into the instrument config file.
 
 ```python
@@ -67,7 +67,7 @@ import os
 tel = setup(
     "my-pipeline",
     instrument_id="MY_INST",
-    endpoint="gateway:4317",
+    endpoint="herald:4317",
     credential=os.environ["HELIXOBS_SECRET"],
     auth_endpoint=os.environ["HELIXOBS_AUTH_ENDPOINT"],
 )

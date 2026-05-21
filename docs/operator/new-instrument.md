@@ -55,7 +55,7 @@ notifications:
         auto_close_after_days: 7
         on_recurrence_after_close: reopen
 
-# Optional: auth backend (only needed if JWT_SECRET is set on the gateway)
+# Optional: auth backend (only needed if JWT_SECRET is set on the herald)
 auth:
   type: secret
   api_key_hash: "sha256:<hash>"   # see step 3
@@ -63,7 +63,7 @@ auth:
 
 ## 3. Set up auth (if enabled)
 
-If `JWT_SECRET` is set on the gateway, generate a credential for the instrument team:
+If `JWT_SECRET` is set on the herald, generate a credential for the instrument team:
 
 ```bash
 # Generate a secret — share this with the instrument team out-of-band
@@ -96,10 +96,10 @@ MY_INST_SLACK_WEBHOOK=https://hooks.slack.com/services/...
 MY_INST_GITHUB_TOKEN=ghp_...
 ```
 
-The gateway hot-reloads config files every 60 seconds — no restart needed after adding the YAML. Credential env vars require a gateway restart to take effect (they are read at load time):
+The herald hot-reloads config files every 60 seconds — no restart needed after adding the YAML. Credential env vars require a herald restart to take effect (they are read at load time):
 
 ```bash
-docker compose up -d gateway
+docker compose up -d herald
 ```
 
 ## 5. Configure log collection
@@ -127,7 +127,7 @@ Give them:
 - [ ] Notification env vars set in `deploy/.env`
 - [ ] Auth credential generated and shared (if auth enabled)
 - [ ] Log delivery path agreed and configured
-- [ ] Instrument team has gateway address, instrument ID, and Grafana URL
+- [ ] Instrument team has herald address, instrument ID, and Grafana URL
 - [ ] Test entity visible in Entity Inspector after first pipeline run
 - [ ] `helix_instrument_id="MY_INST"` returns results in Loki
 - [ ] Error Entities dashboard shows instrument in the dropdown

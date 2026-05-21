@@ -27,11 +27,11 @@ with tel.create("cluster", id="event-7", parents=["candidate-42", "candidate-43"
     run_cluster()
 ```
 
-The gateway resolves parent IDs to OTel span links server-side and stores the graph in TimescaleDB. The Grafana Entity Inspector renders it as a clickable DAG.
+The herald resolves parent IDs to OTel span links server-side and stores the graph in TimescaleDB. The Grafana Entity Inspector renders it as a clickable DAG.
 
 ### Cross-process parents
 
-Parents do not need to live in the same process or host. If the parent entity was created in a different process, the gateway resolves the link server-side using a shared TraceStore. Simply pass the parent ID — no coordination required.
+Parents do not need to live in the same process or host. If the parent entity was created in a different process, the herald resolves the link server-side using a shared TraceStore. Simply pass the parent ID — no coordination required.
 
 ## Tokens
 
@@ -68,7 +68,7 @@ Named domain events can be attached to any entity or operation:
 token.add_event("calibration-applied", metadata={"solution_id": "cal-2026-05-20"})
 ```
 
-Any event whose name starts with `helix.event.` is extracted by the gateway and stored in the `entity_events` table. Use this for scientifically notable signals — classification changes, quality flags, derived measurements — that you want queryable independently of the full trace.
+Any event whose name starts with `helix.event.` is extracted by the herald and stored in the `entity_events` table. Use this for scientifically notable signals — classification changes, quality flags, derived measurements — that you want queryable independently of the full trace.
 
 ## Errors
 
@@ -92,7 +92,7 @@ with tel.operate("post-process", entity_id=product_id) as token:
     # context manager calls complete() on clean exit
 ```
 
-Both methods emit a `helix.error` event that the gateway stores in `entity_events` and uses to trigger notifications (Slack, GitHub Issues).
+Both methods emit a `helix.error` event that the herald stores in `entity_events` and uses to trigger notifications (Slack, GitHub Issues).
 
 ## The instrument ID
 

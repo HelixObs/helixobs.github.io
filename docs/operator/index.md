@@ -16,8 +16,8 @@ This section covers everything needed to deploy and operate the HelixObs stack f
 
 ## Operator responsibilities at a glance
 
-1. **Deploy the stack** — gateway, OTel Collector, TimescaleDB, Loki, Tempo, Prometheus, Grafana, Alloy
+1. **Deploy the stack** — herald, OTel Collector, TimescaleDB, Loki, Tempo, Prometheus, Grafana, Alloy
 2. **Configure log collection** — decide per-instrument whether Alloy or OTLP delivers logs, and ensure the required pipeline is in place
 3. **Configure instrument YAML** — one file per instrument for notifications and auth
-4. **Provide connection details to instrument teams** — gateway address, auth endpoint, credential
+4. **Provide connection details to instrument teams** — herald address, auth endpoint, credential
 5. **Monitor** — Platform Health dashboard, error rate alerts, Sherlock for AI-assisted diagnosis
