@@ -26,7 +26,7 @@ Configures logging and returns a ready-to-use `Instrument` stamped with the same
 |---|---|---|---|
 | `service_name` | `str` | — | OTel service name for traces and logs |
 | `instrument_id` | `str` | — | Short instrument identifier (e.g. `"MY_INST"`). Required unless `instrument_class` owns its own ID |
-| `endpoint` | `str` | `"localhost:4317"` | Herald gRPC address |
+| `endpoint` | `str` | `"localhost:4317"` | [Herald](concepts.md#herald) gRPC address |
 | `insecure` | `bool` | `True` | Disable TLS (set `False` in production with TLS) |
 | `otlp` | `bool` | `False` | Ship logs via OTLP instead of stdout JSON |
 | `log_endpoint` | `str\|None` | `None` | OTel Collector address for logs. Falls back to `OTEL_EXPORTER_OTLP_ENDPOINT`, then `http://localhost:4317` |
@@ -122,7 +122,7 @@ with tel.operate("post-process", entity_id=product_id) as token:
 
 ### `token.add_event(name, attributes=None)`
 
-Records a named span event. Events named `helix.event.*` are stored in `entity_events` and appear in the Entity Inspector timeline.
+Records a named span event. Events named `helix.event.*` are stored in `entity_events` and appear in the [Entity Inspector](../operator/dashboards.md#entity-inspector) timeline.
 
 ```python
 token.add_event("helix.event.classified", attributes={"label": "candidate", "confidence": "0.97"})

@@ -27,11 +27,11 @@ with tel.create("cluster", id="event-7", parents=["candidate-42", "candidate-43"
     run_cluster()
 ```
 
-The herald resolves parent IDs to OTel span links server-side and stores the graph in TimescaleDB. The Grafana Entity Inspector renders it as a clickable DAG.
+The [herald](#herald) resolves parent IDs to OTel span links server-side and stores the graph in TimescaleDB. The Grafana [Entity Inspector](../operator/dashboards.md#entity-inspector) renders it as a clickable DAG.
 
 ### Cross-process parents
 
-Parents do not need to live in the same process or host. If the parent entity was created in a different process, the herald resolves the link server-side using a shared TraceStore. Simply pass the parent ID — no coordination required.
+Parents do not need to live in the same process or host. If the parent entity was created in a different process, the [herald](#herald) resolves the link server-side using a shared TraceStore. Simply pass the parent ID — no coordination required.
 
 ## Tokens
 
@@ -98,23 +98,11 @@ Named domain events can be attached to any entity or operation:
 token.add_event("helix.event.classified", metadata={"label": "FRB", "dm": "348.8", "confidence": "0.97"})
 ```
 
-Any event whose name starts with `helix.event.` is extracted by the herald and stored in the `entity_events` table, and appears on the Entity Inspector timeline in Grafana. Use this for scientifically notable signals — classification changes, quality flags, derived measurements — that you want queryable independently of the full trace.
+Any event whose name starts with `helix.event.` is extracted by the [herald](#herald) and stored in the `entity_events` table, and appears on the [Entity Inspector](../operator/dashboards.md#entity-inspector) timeline. Use this for scientifically notable signals — classification changes, quality flags, derived measurements — that you want queryable independently of the full trace.
 
 ### Triggering notifications from events
 
-Events can also trigger **Slack messages and GitHub issues** if the event name is configured in your instrument's notification config. For example, to notify on every `helix.event.classified` event, your operator adds to the instrument YAML:
-
-```yaml
-notifications:
-  events:
-    helix.event.classified:
-      slack:
-        channel: "#detections"
-        sample_window_seconds: 60
-        max_per_window: 5
-```
-
-Contact your operator to configure notifications for specific event types.
+Events can also trigger **Slack messages and GitHub issues** if the event name is configured in your instrument's notification config. Contact your operator — see [Custom event notifications](../operator/notifications.md#custom-event-notifications) for the configuration format.
 
 ## Errors
 
@@ -138,13 +126,13 @@ with tel.operate("post-process", entity_id=product_id) as token:
     # context manager calls complete() on clean exit
 ```
 
-Both methods emit a `helix.error` event that the herald stores in `entity_events`.
+Both methods emit a `helix.error` event that the [herald](#herald) stores in `entity_events`.
 
 ### Notifications for errors
 
-If your instrument is configured for error notifications, every `helix.error` event automatically triggers a **Slack message** and/or opens a **GitHub issue**. The herald deduplicates by error fingerprint — repeated identical errors update the existing issue body rather than creating noise. Rate limiting, silence rules, and auto-close behaviour are all configured by your operator per instrument.
+If your instrument is configured for error notifications, every `helix.error` event automatically triggers a **Slack message** and/or opens a **GitHub issue**. The [herald](#herald) deduplicates by error fingerprint — repeated identical errors update the existing issue body rather than creating noise. Rate limiting, silence rules, and auto-close behaviour are configured by your operator — see [Notifications](../operator/notifications.md).
 
-A Slack alert includes the error message, entity ID, a direct link to the Entity Inspector, and a "Manage Silences" button. A GitHub issue tracks occurrence count, first/last seen, and the list of affected entities — updated on every recurrence.
+A Slack alert includes the error message, entity ID, a direct link to the [Entity Inspector](../operator/dashboards.md#entity-inspector), and a "Manage Silences" button. A GitHub issue tracks occurrence count, first/last seen, and the list of affected entities — updated on every recurrence.
 
 No code changes are needed on your side. As long as `token.error()` or `token.add_error()` is called with a descriptive `metadata` dict, the notification system has everything it needs:
 

@@ -114,7 +114,7 @@ with tel.create("aggregate", id="event-7", parents=partial_ids):
 
 ### Cross-process
 
-Parent IDs can come from any upstream process — no shared memory required. The herald resolves the link from its server-side TraceStore.
+Parent IDs can come from any upstream process — no shared memory required. The [herald](concepts.md#herald) resolves the link from its server-side TraceStore.
 
 ```python
 # In process A:
@@ -136,7 +136,7 @@ with tel.create("classify", id="event-7", parents=["candidate-42"]) as token:
     token.add_event("classified", attributes={"label": label, "confidence": "0.97"})
 ```
 
-Events named `helix.event.*` are stored in `entity_events` and appear in the Entity Inspector timeline.
+Events named `helix.event.*` are stored in `entity_events` and appear in the [Entity Inspector](../operator/dashboards.md#entity-inspector) timeline.
 
 ---
 
