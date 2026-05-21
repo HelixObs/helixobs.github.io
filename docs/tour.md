@@ -59,13 +59,13 @@ Every log line emitted while a span is active carries `helix_entity_id` and `ote
 
 ---
 
-## Monitor
+## Data Monitor
 
-The Monitor page plots any entity metadata field as a time-series across all entities in a configurable time window. No separate dashboard setup required — any value you pass to `token.set_attribute()` or `complete(metadata=...)` is immediately queryable here.
+The Data Monitor plots any entity metadata field as a time-series across all entities in a configurable time window. No separate dashboard setup required — any value you pass to `token.set_attribute()` or `complete(metadata=...)` is immediately queryable here.
 
 <figure markdown>
-  ![Monitor page](assets/screenshots/monitor.png)
-  <figcaption>Monitor: detection score, DM, and processing latency plotted over time across all entities. Useful for catching pipeline drift without building custom dashboards.</figcaption>
+  ![Data Monitor](assets/screenshots/monitor.png)
+  <figcaption>Data Monitor: detection score, DM, and processing latency plotted over time across all entities. Useful for catching pipeline drift without building custom dashboards.</figcaption>
 </figure>
 
 ---
@@ -80,6 +80,15 @@ Repeated identical errors are rate-limited and digested — you get one message 
 <figure markdown>
   ![Slack alert](assets/screenshots/slack-alert.png)
   <figcaption>Slack alert with entity ID, error message, stage, and action buttons. The "Manage Silences" button links directly to the notifications page pre-filtered for this error fingerprint.</figcaption>
+</figure>
+
+### Silencing alerts
+
+If an error is known or expected, you can silence it without touching any code. Click **Manage Silences** in the Slack alert to open the notifications page pre-filtered for that fingerprint, then create a silence rule scoped to the instrument, event type, or exact error fingerprint — with an expiry time of your choosing. The herald stops dispatching notifications for matching events until the silence expires.
+
+<figure markdown>
+  ![Silence management](assets/screenshots/silences.png)
+  <figcaption>Notifications page: active alerts, active silences, and the silence creation form. Navigating from a Slack alert pre-fills the instrument and fingerprint fields.</figcaption>
 </figure>
 
 ---
