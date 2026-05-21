@@ -19,7 +19,15 @@ This is the answer to *"where did this data product come from, and what happened
 
 ## Entity Inspector
 
-The [Entity Inspector](operator/dashboards.md#entity-inspector) is a Grafana panel that renders the provenance DAG interactively. Click any node to jump to that entity's trace, logs, and event timeline. Nodes with `helix.error` events are highlighted.
+The [Entity Inspector](operator/dashboards.md#entity-inspector) is your primary window into any individual entity. From a single view you can:
+
+- **Navigate the provenance DAG** — click any ancestor or descendant node to jump to that entity
+- **Inspect the distributed trace** — the full Tempo waterfall of every processing stage, embedded inline
+- **Browse correlated logs** — every log line emitted while this entity was being processed, across all hosts
+- **Review the event timeline** — every `helix.event.*` milestone and `helix.error` recorded against the entity, in order
+- **Launch Sherlock** — click "Diagnose with AI" on any error entity to start a root-cause investigation
+
+Nodes with `helix.error` events are highlighted in the DAG so errors are visible at a glance without opening anything.
 
 <figure markdown>
   ![Entity Inspector](assets/screenshots/entity-inspector.png)
