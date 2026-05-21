@@ -17,11 +17,21 @@ Every entity accumulates:
 
 This is the core idea: instead of asking *"what did service X do?"*, you ask *"what happened to entity Y, across every service that touched it?"*
 
-## Why entity-centric?
+## Why HelixObs?
 
-Standard observability tools track *requests* or *services*. Scientific pipelines produce *data products* that flow through dozens of asynchronous stages across many hosts over minutes or hours. A single product might touch a detection process, a filtering service, an archiver, and a catalog registration system before it is complete.
+Standard observability tools — Datadog, Prometheus, OpenTelemetry — were designed for web services. They answer operational questions: is the service up, is latency acceptable, what is the error rate? They have no concept of domain data products, and no ability to track a specific item of data across multiple disjoint asynchronous processes.
 
-Distributed tracing alone cannot correlate these: the pipeline is not a single request — stages run independently and are not causally linked in the OTel sense. HelixObs solves this with an entity DAG: each data product is an entity, each processing stage records a provenance link to its inputs, and the herald assembles these links into a queryable graph.
+Instrument and data pipelines are fundamentally different. A single result may be the product of hundreds of parallel processing branches, aggregated over minutes or hours, across dozens of hosts. **Failures in these pipelines have real consequence.** A processing failure that goes undetected for a day means that data window is gone — it cannot be reprocessed, and its scientific or operational value is permanently lost.
+
+Three specific problems motivated HelixObs:
+
+**1. Silent failures with delayed consequence.** In a web service, a failed request surfaces immediately. In a data pipeline, failures are often discovered days later — when someone notices results look wrong. By then the cause is difficult to trace and the impact is hard to quantify. Standard alerting on CPU and error rates does not catch the cases that matter: a job that completes successfully but produces wrong output, or a stage that silently drops data under load.
+
+**2. Provenance is a DAG, not a tree.** Standard distributed tracing assumes one parent, many children — a synchronous request tree. Data pipelines produce directed acyclic graphs: N upstream entities are combined into one result, which fans out to M downstream processes. No existing tracing tool can represent this causal structure, track a data product through it, or answer "which upstream inputs contributed to this output?"
+
+**3. Existing tools leave a gap.** Log aggregators give you searchable text. Distributed tracing gives you request waterfalls. Infrastructure monitoring gives you CPU and memory. None of them give you a unified view of what happened to a specific data product — across every process, every host, every stage — in one place. Teams fill this gap with custom scripts and dashboards that accumulate technical debt and are never quite trusted.
+
+HelixObs is a production implementation of entity-centric observability that closes this gap, built on OpenTelemetry so it works alongside the tools you already have.
 
 ## What you get
 
