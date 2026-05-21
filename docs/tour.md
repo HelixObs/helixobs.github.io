@@ -22,9 +22,7 @@ This is the answer to *"where did this data product come from, and what happened
 The [Entity Inspector](operator/dashboards.md#entity-inspector) is a Grafana panel that renders the provenance DAG interactively. Click any node to jump to that entity's trace, logs, and event timeline. Nodes with `helix.error` events are highlighted.
 
 <figure markdown>
-  <div style="background:#f5f5f5;border:2px dashed #ccc;border-radius:8px;padding:48px 24px;text-align:center;color:#999;font-size:14px;line-height:2">
-    Screenshot coming<br><code style="font-size:12px">docs/assets/screenshots/entity-inspector.png</code>
-  </div>
+  ![Entity Inspector](assets/screenshots/entity-inspector.png)
   <figcaption>Entity Inspector: interactive provenance DAG, event timeline, and error summary for a selected entity.</figcaption>
 </figure>
 
@@ -35,9 +33,7 @@ The [Entity Inspector](operator/dashboards.md#entity-inspector) is a Grafana pan
 Every entity spans maps to an [OpenTelemetry](https://opentelemetry.io/) trace visible in Grafana Tempo. The waterfall shows timing across all processing stages and any [child spans](client/tracking.md#child-spans) you've added for internal sub-steps.
 
 <figure markdown>
-  <div style="background:#f5f5f5;border:2px dashed #ccc;border-radius:8px;padding:48px 24px;text-align:center;color:#999;font-size:14px;line-height:2">
-    Screenshot coming<br><code style="font-size:12px">docs/assets/screenshots/tempo-trace.png</code>
-  </div>
+  ![Tempo trace waterfall](assets/screenshots/tempo-trace.png)
   <figcaption>Tempo trace waterfall: every stage from ingest through archival, with child spans for internal sub-steps like RFI excision and dedispersion.</figcaption>
 </figure>
 
@@ -48,9 +44,7 @@ Every entity spans maps to an [OpenTelemetry](https://opentelemetry.io/) trace v
 Every log line emitted while a span is active carries `helix_entity_id` and `otel_trace_id`. Search Loki for any entity and get every log line from every process that touched it — no grep, no SSH, no node-hopping.
 
 <figure markdown>
-  <div style="background:#f5f5f5;border:2px dashed #ccc;border-radius:8px;padding:48px 24px;text-align:center;color:#999;font-size:14px;line-height:2">
-    Screenshot coming<br><code style="font-size:12px">docs/assets/screenshots/loki-logs.png</code>
-  </div>
+  ![Correlated logs in Loki](assets/screenshots/correlated-logs.png)
   <figcaption>Loki log panel filtered by entity ID. Logs from ingest, search, and archival processes appear in a single view, ordered by time.</figcaption>
 </figure>
 
@@ -61,9 +55,7 @@ Every log line emitted while a span is active carries `helix_entity_id` and `ote
 The Monitor page plots any entity metadata field as a time-series across all entities in a configurable time window. No separate dashboard setup required — any value you pass to `token.set_attribute()` or `complete(metadata=...)` is immediately queryable here.
 
 <figure markdown>
-  <div style="background:#f5f5f5;border:2px dashed #ccc;border-radius:8px;padding:48px 24px;text-align:center;color:#999;font-size:14px;line-height:2">
-    Screenshot coming<br><code style="font-size:12px">docs/assets/screenshots/monitor.png</code>
-  </div>
+  ![Monitor page](assets/screenshots/monitor.png)
   <figcaption>Monitor: detection score, DM, and processing latency plotted over time across all entities. Useful for catching pipeline drift without building custom dashboards.</figcaption>
 </figure>
 
@@ -76,9 +68,7 @@ When a `token.error()` call is recorded, the [herald](client/concepts.md#herald)
 Repeated identical errors are rate-limited and digested — you get one message per window, not a flood.
 
 <figure markdown>
-  <div style="background:#f5f5f5;border:2px dashed #ccc;border-radius:8px;padding:48px 24px;text-align:center;color:#999;font-size:14px;line-height:2">
-    Screenshot coming<br><code style="font-size:12px">docs/assets/screenshots/slack-alert.png</code>
-  </div>
+  ![Slack alert](assets/screenshots/slack-alert.png)
   <figcaption>Slack alert with entity ID, error message, stage, and action buttons. The "Manage Silences" button links directly to the notifications page pre-filtered for this error fingerprint.</figcaption>
 </figure>
 
@@ -91,9 +81,7 @@ Notifications are configured per instrument by your operator — see [Notificati
 If your instrument is configured with a GitHub repo, every distinct error fingerprint opens a GitHub issue automatically. The issue body tracks occurrence count, first/last seen, and the list of affected entity IDs — updated on every recurrence, not by adding new comments.
 
 <figure markdown>
-  <div style="background:#f5f5f5;border:2px dashed #ccc;border-radius:8px;padding:48px 24px;text-align:center;color:#999;font-size:14px;line-height:2">
-    Screenshot coming<br><code style="font-size:12px">docs/assets/screenshots/github-issue.png</code>
-  </div>
+  ![GitHub issue](assets/screenshots/github-issue.png)
   <figcaption>Auto-opened GitHub issue showing error summary, occurrence count, first/last seen timestamps, and the list of affected entities. The issue is closed automatically after a configurable quiet period.</figcaption>
 </figure>
 
