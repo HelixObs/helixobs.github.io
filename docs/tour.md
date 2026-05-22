@@ -2,89 +2,27 @@
 
 New here? Start with the [home page](index.md) for an introduction to what an entity is and why HelixObs is built around them.
 
-Once your pipeline is instrumented, here is what you get.
+This tour follows the journey of an on-call operator — from the moment a Slack alert fires to a resolved root cause.
 
 ---
 
-## Provenance graph
+## "I just got a Slack alert. What's broken?"
 
-Every entity accumulates a directed acyclic graph (DAG) of the entities it was derived from and the entities it produced. The links are declared in code — `parents=["block-001"]` — and the [herald](client/concepts.md#herald) assembles them across processes and hosts automatically.
-
-<figure markdown>
-  ![Provenance DAG](assets/provenance-dag.svg)
-  <figcaption>block-001 (ingested) was searched twice, producing two candidates. candidate-42 succeeded; candidate-43 failed. The surviving candidate was clustered into event-7. The error on candidate-43 is visible without opening a single log file.</figcaption>
-</figure>
-
-This is the answer to *"where did this data product come from, and what happened along the way?"* — resolved in one query.
-
----
-
-## Entity Inspector
-
-The [Entity Inspector](operator/dashboards.md#entity-inspector) is your primary window into any individual entity. From a single view you can:
-
-- **Navigate the provenance DAG** — click any ancestor or descendant node to jump to that entity
-- **Inspect the distributed trace** — the full Tempo waterfall of every processing stage, embedded inline
-- **Browse correlated logs** — every log line emitted while this entity was being processed, across all hosts
-- **Review the event timeline** — every `helix.event.*` milestone and `helix.error` recorded against the entity, in order
-
-Nodes with `helix.error` events are highlighted in the DAG so errors are visible at a glance without opening anything.
-
-<figure markdown>
-  ![Entity Inspector](assets/screenshots/entity-inspector.png)
-  <figcaption>Entity Inspector: interactive provenance DAG, event timeline, and error summary for a selected entity.</figcaption>
-</figure>
-
----
-
-## Distributed traces
-
-Every entity spans maps to an [OpenTelemetry](https://opentelemetry.io/) trace visible in Grafana Tempo. The waterfall shows timing across all processing stages and any [child spans](client/tracking.md#child-spans) you've added for internal sub-steps.
-
-<figure markdown>
-  ![Tempo trace waterfall](assets/screenshots/tempo-trace.png)
-  <figcaption>Tempo trace waterfall: every stage from ingest through archival, with child spans for internal sub-steps like RFI excision and dedispersion.</figcaption>
-</figure>
-
----
-
-## Correlated logs
-
-Every log line emitted while a span is active carries `helix_entity_id` and `otel_trace_id`. Search Loki for any entity and get every log line from every process that touched it — no grep, no SSH, no node-hopping.
-
-<figure markdown>
-  ![Correlated logs in Loki](assets/screenshots/correlated-logs.png)
-  <figcaption>Loki log panel filtered by entity ID. Logs from ingest, search, and archival processes appear in a single view, ordered by time.</figcaption>
-</figure>
-
----
-
-## Data Monitor
-
-The Data Monitor plots any entity metadata field as a time-series across all entities in a configurable time window. No separate dashboard setup required — any value you pass to `token.set_attribute()` or `complete(metadata=...)` is immediately queryable here.
-
-<figure markdown>
-  ![Data Monitor](assets/screenshots/monitor.png)
-  <figcaption>Data Monitor: detection score, DM, and processing latency plotted over time across all entities. Useful for catching pipeline drift without building custom dashboards.</figcaption>
-</figure>
-
----
-
-## Slack alerts
-
-Assuming that notifications are configured per instrument by your operator — see [Notifications](operator/notifications.md).
-When a `token.error() | token.add_error()` call is recorded, the [herald](client/concepts.md#herald) dispatches a Slack message with the error details, a direct link to the Entity Inspector, and a **Manage Silences** button that takes you to a pre-filtered silencing UI for that exact error fingerprint.
-
-Repeated identical errors are rate-limited and digested — you get one message per window, not a flood.
+You receive a Slack message: a `helix.error` fired in the pipeline. The alert links directly to a **GitHub issue** that HelixObs opened automatically for this error class. The issue body shows the error summary, when it was first and last seen, how many times it has occurred, and a list of recent affected entity IDs.
 
 <figure markdown>
   ![Slack alert](assets/screenshots/slack-alert.png)
   <figcaption>Slack alert with entity ID, error message, stage, and action buttons. The "Manage Silences" button links directly to the notifications page pre-filtered for this error fingerprint.</figcaption>
 </figure>
 
-### Silencing alerts
+<figure markdown>
+  ![GitHub issue](assets/screenshots/github-issue.png)
+  <figcaption>Auto-opened GitHub issue showing error summary, occurrence count, first/last seen timestamps, and the list of affected entities. The issue is closed automatically after a configurable quiet period.</figcaption>
+</figure>
 
-If an error is known or expected, you can silence it without touching any code. Click **Manage Silences** in the Slack alert to open the notifications page pre-filtered for that fingerprint, then create a silence rule scoped to the instrument, event type, or exact error fingerprint — with an expiry time of your choosing. The herald stops dispatching notifications for matching events until the silence expires.
+For a broader view of everything currently firing, open the [Notifications](operator/notifications.md) page. The **Active Alerts** table shows every distinct error class from the last 7 days — grouped by error type and pipeline stage, with occurrence counts and a link to the GitHub issue for each one.
+
+If it's noise you recognise — a transient connection error, a known flapping service — you can silence it without touching any code. Click **Silence** on the row, set a duration, and it stops alerting you while you work on the real problem.
 
 <figure markdown>
   ![Silence management](assets/screenshots/silences.png)
@@ -93,20 +31,26 @@ If an error is known or expected, you can silence it without touching any code. 
 
 ---
 
-## GitHub issue tracking
+## "What exactly happened to this entity, and why?"
 
-If your instrument is configured with a GitHub repo, every distinct error fingerprint opens a GitHub issue automatically. The issue body tracks occurrence count, first/last seen, and the list of affected entity IDs — updated on every recurrence, not by adding new comments.
+Take an entity ID from the GitHub issue or the Alerts table and paste it into the [Entity Inspector](operator/dashboards.md#entity-inspector) to open the provenance graph for that entity.
 
 <figure markdown>
-  ![GitHub issue](assets/screenshots/github-issue.png)
-  <figcaption>Auto-opened GitHub issue showing error summary, occurrence count, first/last seen timestamps, and the list of affected entities. The issue is closed automatically after a configurable quiet period.</figcaption>
+  ![Provenance DAG](assets/provenance-dag.svg)
+  <figcaption>block-001 (ingested) was searched twice, producing two candidates. candidate-42 succeeded; candidate-43 failed. The surviving candidate was clustered into event-7. The error on candidate-43 is visible without opening a single log file.</figcaption>
 </figure>
 
----
+The graph shows you two things at once:
 
-## AI diagnosis with Sherlock
+- **Where this entity came from** — its parent entities, their parents, and so on. For a CHIME FRB event you can trace back through the clustering stage, the beam candidates, and the raw data block that started the chain. Nodes with errors are highlighted so failures are visible at a glance.
+- **What happened to it** — the events timeline lists every `helix.*` event emitted during the entity's lifetime, including the exact error message and the stage it came from. Correlated logs and the distributed trace waterfall are also available directly from this view.
 
-Click **Diagnose with AI** on any error entity in the Entity Inspector. Sherlock fetches logs, traces, provenance, and — if configured — the relevant source code, then streams a root-cause analysis directly to the UI. You can reply to ask follow-up questions.
+<figure markdown>
+  ![Entity Inspector](assets/screenshots/entity-inspector.png)
+  <figcaption>Entity Inspector: interactive provenance DAG, event timeline, and error summary for a selected entity.</figcaption>
+</figure>
+
+If the error needs deeper investigation, click **Diagnose with AI** to open a Sherlock session for that entity. Sherlock automatically fetches the relevant source code, pulls Loki logs for that entity ± 5 minutes, walks the provenance chain, and queries Prometheus for node-level metrics — then streams a root cause hypothesis to the UI. You can reply in the chat panel if Sherlock needs more context from you.
 
 <figure markdown>
   ![Sherlock AI diagnosis](assets/screenshots/sherlock.gif)
@@ -114,3 +58,22 @@ Click **Diagnose with AI** on any error entity in the Entity Inspector. Sherlock
 </figure>
 
 Sherlock results are stored in instrument memory — the same investigation is replayed instantly on a recurrence without a new API call.
+
+---
+
+## "Is data even flowing through the pipeline right now?"
+
+Before chasing an individual entity, it is worth knowing whether the pipeline is producing data at all. The [Data Monitor](operator/dashboards.md#data-monitor) answers that at a glance.
+
+Select your instrument and add a panel for a field your pipeline emits on every entity — DM, SNR, or similar. A healthy pipeline produces a continuous band of points across the canvas. A gap means data stopped flowing: no entities were produced in that window. A thinning band means throughput dropped.
+
+<figure markdown>
+  ![Data Monitor](assets/screenshots/monitor.png)
+  <figcaption>Data Monitor: DM and SNR plotted over time across all entities. A continuous band means data is flowing; a gap means something upstream stopped.</figcaption>
+</figure>
+
+If you see a gap or drop that coincides with your alert, the problem is upstream — something stopped feeding the pipeline — rather than a failure in one specific entity.
+
+---
+
+That is the core loop: **Slack alert → GitHub issue → Entity Inspector → Sherlock → Monitor**. Each tool answers the next question you would naturally ask.
