@@ -42,7 +42,7 @@ Take an entity ID from the GitHub issue or the Alerts table and paste it into th
 
 The graph shows you two things at once:
 
-- **Where this entity came from** — its parent entities, their parents, and so on. For a CHIME FRB event you can trace back through the clustering stage, the beam candidates, and the raw data block that started the chain. Nodes with errors are highlighted so failures are visible at a glance.
+- **Where this entity came from** — its parent entities, their parents, and so on. You can trace back through every processing stage to the raw data that started the chain. Nodes with errors are highlighted so failures are visible at a glance.
 - **What happened to it** — the events timeline lists every `helix.*` event emitted during the entity's lifetime, including the exact error message and the stage it came from. Correlated logs and the distributed trace waterfall are also available directly from this view.
 
 <figure markdown>
