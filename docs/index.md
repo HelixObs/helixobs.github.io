@@ -2,7 +2,7 @@
   <img src="assets/wordmark.svg" alt="HelixObs" style="width:100%; max-width:480px; display:block;" />
 </div>
 
-**Entity-centric observability for scientific instrument pipelines.**
+In radio astronomy, entities are data blocks and FRB candidates. In genomics, they're samples and variants. In climate modeling, they're observation files and derived products. The pipeline differs. The observability problem is identical.
 
 ## What is an Entity?
 
