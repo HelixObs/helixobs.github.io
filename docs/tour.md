@@ -65,11 +65,11 @@ Sherlock results are stored in instrument memory — the same investigation is r
 
 Before chasing an individual entity, it is worth knowing whether the pipeline is producing data at all. The [Data Monitor](operator/dashboards.md#data-monitor) answers that at a glance.
 
-Select your instrument and add a panel for a field your pipeline emits on every entity — DM, SNR, or similar. A healthy pipeline produces a continuous band of points across the canvas. A gap means data stopped flowing: no entities were produced in that window. A thinning band means throughput dropped.
+Select your instrument and add a panel for any numeric field your pipeline emits on every entity. A healthy pipeline produces a continuous band of points across the canvas. A gap means data stopped flowing: no entities were produced in that window. A thinning band means throughput dropped.
 
 <figure markdown>
   ![Data Monitor](assets/screenshots/monitor.png)
-  <figcaption>Data Monitor: DM and SNR plotted over time across all entities. A continuous band means data is flowing; a gap means something upstream stopped.</figcaption>
+  <figcaption>Data Monitor: entity metadata fields plotted over time. A continuous band means data is flowing; a gap means something upstream stopped.</figcaption>
 </figure>
 
 If you see a gap or drop that coincides with your alert, the problem is upstream — something stopped feeding the pipeline — rather than a failure in one specific entity.
