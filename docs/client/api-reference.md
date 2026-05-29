@@ -60,7 +60,7 @@ token.start()
 token.complete()
 ```
 
-### `Instrument.operate(operation, *, entity_id) → Token`
+### `Instrument.operate(operation, *, entity_id=None) → Token`
 
 Returns a `Token` for work on an existing entity. Writes to `entity_operations`, not `entities`. Same three usage patterns as `create()`.
 
@@ -69,6 +69,33 @@ with tel.operate("archive", entity_id="event-7") as token:
     write_archive()
     token.set_attribute("path", "/data/event-7.h5")
 ```
+
+**Deferred entity ID.** `entity_id` is optional. Omit it to open the trace immediately — before the entity is known — then call `token.set_entity_id(id)` once discovered. All logs emitted before the call share the same `otelTraceID` and are reachable from the Entity Inspector via the operation's trace link.
+
+```python
+with tel.operate("stage-deletion") as token:
+    items = fetch_work()          # logged under this trace
+    if not items:
+        return                    # no entity → span forwarded as plain trace
+    token.set_entity_id(items[0].dataset_name)
+    process(items)
+```
+
+If the span closes without `entity_id` a `WARNING` is logged and no `entity_operations` row is written.
+
+### `Instrument.trace(name, *, attributes=None)`
+
+Context manager for a plain OTel span with no entity semantics. Use for infrastructure work — HTTP handlers, background loops, daemon iterations — where log correlation by trace ID is useful but no entity is being tracked. The herald forwards the span unchanged.
+
+```python
+with tel.trace("handle-request", attributes={"method": "POST"}):
+    with tel.child_span("validate"):
+        validate(request)
+    with tel.child_span("write-db"):
+        write(request)
+```
+
+`child_span()` calls inside a `tel.trace()` block automatically inherit the trace context and share its `otelTraceID`. Log lines emitted anywhere inside carry `otel_trace_id`, filterable in Loki without needing an entity ID.
 
 ### `Instrument.child_span(name, *, parent_id=None, attributes=None)`
 
@@ -126,6 +153,19 @@ Records a named span event. Events named `helix.event.*` are stored in `entity_e
 ```python
 token.add_event("helix.event.classified", attributes={"label": "candidate", "confidence": "0.97"})
 ```
+
+### `token.set_entity_id(entity_id)`
+
+Sets the entity ID mid-operation. Use with deferred `entity_id` on `operate()`.
+
+```python
+with tel.operate("stage-replication") as token:
+    dataset = fetch_next()
+    if dataset:
+        token.set_entity_id(dataset.name)
+```
+
+Equivalent to `token.set_attribute("helix.entity.id", entity_id)`.
 
 ### `token.set_attribute(key, value)`
 

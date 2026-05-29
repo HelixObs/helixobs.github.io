@@ -153,3 +153,46 @@ with tel.create("process", id="block-001"):
 ```
 
 Child spans inherit the current entity's trace context and appear in the Tempo waterfall but do not create additional entity rows in TimescaleDB.
+
+---
+
+## Operations where the entity is discovered mid-execution
+
+Some pipelines don't know which entity they're operating on until after fetching work from a queue or database. Pass no `entity_id` to `operate()` so the entire execution — including the discovery work — is captured in one trace, then call `token.set_entity_id()` once the entity is known.
+
+```python
+with tel.operate("stage-deletion") as op:
+    # queue check and DB fetch are inside this trace
+    if queue.is_full():
+        log.info("queue full, skipping")
+        return                          # trace closes without entity_id → passthrough
+
+    dataset = await fetch_next_dataset()
+    if dataset is None:
+        return                          # same — no entity linked
+
+    op.set_entity_id(dataset.name)      # all subsequent logs carry this entity's trace
+
+    replicas = await fetch_replicas(dataset.id)
+    await stage_work(replicas)
+    op.add_event("helix.event.deletion-staged", {"num_replicas": str(len(replicas))})
+```
+
+The story in the Entity Inspector: "During trace `abc123` the pipeline operated on entity `dataset-x`." All logs — including those before `set_entity_id()` — are reachable from the entity's operation row via its `trace_id` link.
+
+---
+
+## Plain traces for infrastructure work
+
+Use `tel.trace()` for work that has no entity — HTTP servers, periodic health checks, daemon loops — where you want log correlation by trace ID without any entity machinery. No extra imports needed.
+
+```python
+with tel.trace("process-request", attributes={"endpoint": "/api/status"}):
+    with tel.child_span("auth-check"):
+        verify_token(request)
+    with tel.child_span("db-query"):
+        result = db.query(...)
+    log.info("request complete")    # otel_trace_id present → filterable in Loki
+```
+
+`child_span()` calls inside a `tel.trace()` block automatically inherit the trace context and share its `otelTraceID`. The herald forwards these spans unchanged — no entity rows are written.
