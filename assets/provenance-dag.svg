@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 240" style="max-width:560px;width:100%;font-family:ui-sans-serif,system-ui,sans-serif">
+  <defs>
+    <marker id="arr" markerWidth="9" markerHeight="7" refX="9" refY="3.5" orient="auto" markerUnits="userSpaceOnUse">
+      <polygon points="0,0 9,3.5 0,7" fill="#5c6bc0"/>
+    </marker>
+  </defs>
+
+  <!-- Edges -->
+  <path d="M 150,123 C 182,123 182,75 215,75" stroke="#5c6bc0" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+  <path d="M 150,123 C 182,123 182,173 215,173" stroke="#5c6bc0" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+  <path d="M 345,75 C 377,75 377,123 410,123" stroke="#5c6bc0" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+  <path d="M 345,173 C 377,173 377,123 410,123" stroke="#5c6bc0" stroke-width="1.5" fill="none" marker-end="url(#arr)"/>
+
+  <!-- block-001 -->
+  <rect x="20" y="95" width="130" height="56" rx="8" fill="#e8eaf6" stroke="#3949ab" stroke-width="1.5"/>
+  <text x="85" y="113" text-anchor="middle" font-size="10" fill="#5c6bc0" font-weight="700" letter-spacing="0.8">INGEST</text>
+  <text x="85" y="131" text-anchor="middle" font-size="13" fill="#1a237e">block-001</text>
+
+  <!-- candidate-42 -->
+  <rect x="215" y="47" width="130" height="56" rx="8" fill="#e8eaf6" stroke="#3949ab" stroke-width="1.5"/>
+  <text x="280" y="65" text-anchor="middle" font-size="10" fill="#5c6bc0" font-weight="700" letter-spacing="0.8">SEARCH</text>
+  <text x="280" y="83" text-anchor="middle" font-size="13" fill="#1a237e">candidate-42</text>
+
+  <!-- candidate-43 (error) -->
+  <rect x="215" y="145" width="130" height="56" rx="8" fill="#ffebee" stroke="#e53935" stroke-width="1.5"/>
+  <text x="280" y="163" text-anchor="middle" font-size="10" fill="#e53935" font-weight="700" letter-spacing="0.8">SEARCH</text>
+  <text x="280" y="181" text-anchor="middle" font-size="13" fill="#b71c1c">candidate-43</text>
+
+  <!-- event-7 -->
+  <rect x="410" y="95" width="130" height="56" rx="8" fill="#e8eaf6" stroke="#3949ab" stroke-width="2"/>
+  <text x="475" y="113" text-anchor="middle" font-size="10" fill="#5c6bc0" font-weight="700" letter-spacing="0.8">CLUSTER</text>
+  <text x="475" y="131" text-anchor="middle" font-size="13" fill="#1a237e" font-weight="600">event-7</text>
+
+  <!-- Legend -->
+  <rect x="20" y="210" width="11" height="11" rx="2" fill="#e8eaf6" stroke="#3949ab" stroke-width="1.5"/>
+  <text x="37" y="220" font-size="11" fill="#888">success</text>
+  <rect x="105" y="210" width="11" height="11" rx="2" fill="#ffebee" stroke="#e53935" stroke-width="1.5"/>
+  <text x="122" y="220" font-size="11" fill="#888">error</text>
+</svg>
