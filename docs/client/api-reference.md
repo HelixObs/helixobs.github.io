@@ -128,7 +128,7 @@ Ends the span in success state. `metadata` is a `dict` of JSON-serialisable valu
 Records a `helix.error` span event, marks the span as failed, and **ends the span**. Use for hard failures — the operation cannot continue.
 
 ```python
-token.error({"reason": "timeout", "stage": "archive"})
+token.error({"message": "timeout", "stage": "archive"})
 ```
 
 Triggers configured notifications (Slack, GitHub Issues).
@@ -142,9 +142,24 @@ with tel.operate("post-process", entity_id=product_id) as token:
     try:
         write_header()
     except Exception as e:
-        token.add_error({"stage": "write-header", "message": str(e)})
+        token.add_error({"stage": "write-header", "message": type(e).__name__})
     # context manager calls complete() on clean exit
 ```
+
+!!! warning "Write a concise `message` — don't dump raw exceptions"
+    The `message` field drives notification deduplication. Every occurrence of the same error class must produce the **same** message string so they converge on a single GitHub issue.
+
+    ```python
+    # Good — stable, human-readable error kind:
+    token.add_error({"message": "db_id_overflow", "stage": "dump_header"})
+    token.add_error({"message": type(e).__name__, "stage": "dump_header"})
+
+    # Bad — str(e) may embed per-entity payload data (tracebacks, floats, etc.)
+    # causing every entity to open its own issue:
+    token.add_error({"message": str(e)})
+    ```
+
+    Full exception detail belongs in the **log line** (automatically correlated to this entity's trace via `otelTraceID`) or in a separate `"detail"` metadata key, not in `message`.
 
 ### `token.add_event(name, attributes=None)`
 
