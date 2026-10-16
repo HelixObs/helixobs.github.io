@@ -52,7 +52,6 @@ notifications:
       github:
         repo: my-org/my-instrument
         labels: [helixobs, bug]
-        auto_close_after_days: 7
         on_recurrence_after_close: reopen
 
 # Optional: auth backend (only needed if JWT_SECRET is set on the herald)

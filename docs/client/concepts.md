@@ -130,7 +130,7 @@ Both methods emit a `helix.error` event that the [herald](#herald) stores in `en
 
 ### Notifications for errors
 
-If your instrument is configured for error notifications, every `helix.error` event automatically triggers a **Slack message** and/or opens a **GitHub issue**. The [herald](#herald) deduplicates by error fingerprint — repeated identical errors update the existing issue body rather than creating noise. Rate limiting, silence rules, and auto-close behaviour are configured by your operator — see [Notifications](../operator/notifications.md).
+If your instrument is configured for error notifications, every `helix.error` event automatically triggers a **Slack message** and/or opens a **GitHub issue**. The [herald](#herald) deduplicates by error fingerprint — repeated identical errors update the existing issue body rather than creating noise. Rate limiting and silence rules are configured by your operator — see [Notifications](../operator/notifications.md).
 
 A Slack alert includes the error message, entity ID, a direct link to the [Entity Inspector](../operator/dashboards.md#entity-inspector), and a "Manage Silences" button. A GitHub issue tracks occurrence count, first/last seen, and the list of affected entities — updated on every recurrence.
 
