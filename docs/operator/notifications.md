@@ -14,6 +14,8 @@ notifications:
   slack_webhook_env: MY_INST_SLACK_WEBHOOK
   # Environment variable that holds the GitHub personal access token.
   github_token_env:  MY_INST_GITHUB_TOKEN
+  # Optional: each alert links to <playbook_base>/<operation>. See Playbooks below.
+  playbook_base: https://github.com/my-org/my-instrument/tree/main/runbooks
 
   events:
     helix.error:
@@ -41,8 +43,13 @@ Config files are reloaded every 60 seconds — no herald restart needed for conf
 Every error is fingerprinted from:
 
 ```
-instrument_id | event_type | normalised_message | stage
+instrument_id | event_type | normalised_message | operation | stage
 ```
+
+`operation` is the name of the span that emitted the error (the name passed to
+`tel.operate(...)` or `tel.create(...)`), so the same message from two
+operations is two error classes. `stage` is the event's `stage` metadata, if
+the pipeline sets it.
 
 The message is normalised before hashing — UUIDs, integers, IP addresses, and file paths are replaced with `?` — so the same error class affecting different entities produces the same fingerprint.
 
@@ -58,7 +65,7 @@ Within each `sample_window_seconds` window, at most `max_per_window` Slack messa
 
 ```
 1 more occurrence(s) suppressed in the last 600s.
-Last: <error message> (stage: <stage>)
+Last: <error message>
 Entity: <entity-id>
 ```
 
@@ -88,12 +95,59 @@ curl -X DELETE http://localhost:8080/api/v1/silences/<id>
 Each Slack message and GitHub issue body includes:
 
 - Error summary (normalised message)
-- Stage name
+- Operation name, and stage if the pipeline sets one
+- Playbook link, if configured
 - Entity ID (with link to Entity Inspector)
 - First seen / last seen timestamps
 - Total occurrence count
 - Up to 10 recent entity IDs
 - Link to the Error Entities Grafana dashboard
+
+## Playbooks
+
+Set `notifications.playbook_base` and each alert links to
+`<playbook_base>/<operation>`, as a **Playbook** button in Slack and a line
+near the top of the GitHub issue. Name each runbook folder or wiki page exactly
+after its operation; lowercase kebab-case names work unchanged in URLs.
+
+HelixObs never fetches the link. If no runbook exists for an operation yet, the
+link is a 404, and the alert says to ask the operation's owner to add one.
+
+Resolution, most specific first:
+
+1. The matching override's `playbook`
+2. `playbook_base/<operation>`
+3. The event's `playbook`
+4. `notifications.playbook`
+
+Invalid URLs (not absolute `http`/`https`) are dropped with a warning; the rest
+of the config still loads.
+
+## Overrides
+
+`overrides` under an event changes its settings for specific operations:
+
+```yaml
+    helix.error:
+      overrides:
+        - match: { operation: convert-data-to-hdf5 }
+          slack:
+            channel: "#baseband-alerts"
+            webhook_env: BASEBAND_SLACK_WEBHOOK
+            sample_window_seconds: 600
+            max_per_window: 1
+          github: off
+        - match: { operation: baseband-callback, stage: request-to-kko-coco }
+          playbook: https://wiki.example/kko
+```
+
+- `match.operation` is required, compared exactly with the operation name.
+- `match.stage` is optional; when set, the event's `stage` metadata must match too.
+- The first matching override wins. Unset `slack`, `github` and `playbook` are
+  inherited from the event; `off` turns a destination off.
+- The old `routes:` key is ignored, with a warning.
+- An override whose operation has no events for 7 days logs a warning, since a
+  renamed operation silently stops matching.
 
 ## Custom event notifications
 
