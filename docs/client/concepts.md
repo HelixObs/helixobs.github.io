@@ -122,7 +122,7 @@ with tel.operate("post-process", entity_id=product_id) as token:
         try:
             step.run()
         except Exception as e:
-            token.add_error({"step": step.name, "message": str(e)})
+            token.add_error({"step": step.name, "message": f"Post-processing step {step.name} failed.", "detail": str(e)})
     # context manager calls complete() on clean exit
 ```
 

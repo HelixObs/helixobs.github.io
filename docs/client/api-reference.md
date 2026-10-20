@@ -142,24 +142,27 @@ with tel.operate("post-process", entity_id=product_id) as token:
     try:
         write_header()
     except Exception as e:
-        token.add_error({"stage": "write-header", "message": type(e).__name__})
+        token.add_error({"message": "Could not write header into L4 db.", "detail": str(e)})
     # context manager calls complete() on clean exit
 ```
 
 !!! warning "Write a concise `message` — don't dump raw exceptions"
-    The `message` field drives notification deduplication. Every occurrence of the same error class must produce the **same** message string so they converge on a single GitHub issue.
+    The `message` field drives notification deduplication, and it's what people read in Slack and in the GitHub issue title. Write it yourself for the failure it reports: every occurrence of the same failure must produce the **same** string so they converge on a single issue, and it should tell a reader what went wrong.
 
     ```python
-    # Good — stable, human-readable error kind:
-    token.add_error({"message": "db_id_overflow", "stage": "dump_header"})
-    token.add_error({"message": type(e).__name__, "stage": "dump_header"})
+    # Good — written for this failure; raw text goes in "detail":
+    token.add_error({"message": "Could not write header into L4 db.", "detail": str(e)})
+    token.error({"message": "New replica is already registered at this storage element.", "detail": str(e)})
 
-    # Bad — str(e) may embed per-entity payload data (tracebacks, floats, etc.)
-    # causing every entity to open its own issue:
+    # Bad — str(e) may embed per-entity data (IDs, paths, floats), so every
+    # entity opens its own issue:
     token.add_error({"message": str(e)})
+
+    # Bad — stable, but "IntegrityError" doesn't say what failed:
+    token.add_error({"message": type(e).__name__})
     ```
 
-    Full exception detail belongs in the **log line** (automatically correlated to this entity's trace via `otelTraceID`) or in a separate `"detail"` metadata key, not in `message`.
+    When one operation can fail in several known ways, give each its own message (a small helper that maps the exception to a message works well), with a general fallback for anything else. Full exception detail belongs in a `"detail"` metadata key or in the **log line** (automatically correlated to this entity's trace via `otelTraceID`), not in `message`.
 
 ### `token.add_event(name, attributes=None)`
 

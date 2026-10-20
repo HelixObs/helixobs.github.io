@@ -77,7 +77,7 @@ try:
     result = run_search()
     token.complete(metadata={"score": result.score})
 except Exception as e:
-    token.error({"message": str(e)})
+    token.error({"message": "Search failed.", "detail": str(e)})
 ```
 
 For operations on existing entities:
